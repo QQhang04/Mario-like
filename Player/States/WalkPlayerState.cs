@@ -1,4 +1,5 @@
 using UnityEngine;
+
 public class WalkPlayerState : PlayerState
 {
     protected override void OnEnter(Player player)
@@ -14,6 +15,7 @@ public class WalkPlayerState : PlayerState
     protected override void OnStep(Player player)
     {
         player.Gravity();
+        player.Fall();
         
         var inputDirection = player.inputs.GetMovementCameraDirection();
 

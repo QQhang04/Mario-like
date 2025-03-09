@@ -71,4 +71,12 @@ public class Player : Entity<Player>
             verticalVelocity = new Vector3(0, speed, 0);
         }
     }
+
+    public virtual void Fall()
+    {
+        if (!isGrounded)
+        {
+            states.Change<FallPlayerState>();
+        }
+    }
 }

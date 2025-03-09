@@ -29,8 +29,9 @@ public class BrakePlayerState : PlayerState
         //     }
         // }
         
-        
+        player.Fall();
         player.Decelerate();
+        
         if (player.lateralVelocity.sqrMagnitude == 0)
         {
             player.states.Change<IdlePlayerState>();

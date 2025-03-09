@@ -4,14 +4,7 @@ using UnityEngine;
 
 public abstract class Entity : MonoBehaviour
 {
-}
-
-public abstract class Entity<T> : Entity where T : Entity<T>
-{
-    public EntityStateManager<T> states {get; private set;}
-    protected virtual void HandleState() => states.Step();
-    protected virtual void InitializeStateManager() => states = GetComponent<EntityStateManager<T>>();
-
+    public EntityEvents entityEvents;
     public bool isGrounded { get; protected set; } = true;
     public Vector3 velocity { get; set; }
     public float turningDragMultipler { get; set; } = 1f;
@@ -20,7 +13,7 @@ public abstract class Entity<T> : Entity where T : Entity<T>
     public float decelerationMultiplier { get; set; } = 1f;
     public float gravityMultiplier { get; set; } = 1f;
     
-    public CharacterController controller {get; private set;}
+    public CharacterController controller {get; protected set;}
 
     public Vector3 lateralVelocity
     {
@@ -34,6 +27,31 @@ public abstract class Entity<T> : Entity where T : Entity<T>
         set {velocity = new Vector3(velocity.x, value.y, velocity.z);}
     }
 
+    protected readonly float m_groundOffset = .1f;
+    public RaycastHit groundHit;
+    public float lastGroundTime { get; protected set; }
+    public float height => controller.height;
+    public float radius => controller.radius;
+    public Vector3 center => controller.center;
+    public Vector3 position => transform.position + center;
+
+    public virtual bool SphereCast(Vector3 direction, float distance, out RaycastHit hit,
+        int layer = Physics.DefaultRaycastLayers,
+        QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.Ignore)
+    {
+        var castDistance = Mathf.Abs(distance - radius);
+        return Physics.SphereCast(position, radius, direction, out hit, castDistance, layer, queryTriggerInteraction);
+    }
+
+    public Vector3 stepPosition => position - transform.up * (height * .5f - controller.stepOffset);
+    public virtual bool IsPointUnderStep(Vector3 point) => stepPosition.y > point.y;
+}
+
+public abstract class Entity<T> : Entity where T : Entity<T>
+{
+    public EntityStateManager<T> states {get; private set;}
+    protected virtual void HandleState() => states.Step();
+    protected virtual void InitializeStateManager() => states = GetComponent<EntityStateManager<T>>();
     protected virtual void InitializeController()
     {
         controller = GetComponent<CharacterController>();
@@ -51,10 +69,69 @@ public abstract class Entity<T> : Entity where T : Entity<T>
         InitializeStateManager();
     }
 
-    protected void Update()
+    protected virtual void Update()
     {
-        HandleState();
-        HandleController();
+        if (controller.enabled)
+        {
+            HandleState();
+            HandleController();
+            HandleGround();
+        }
+    }
+
+    protected virtual void HandleGround()
+    {
+        var distance = (height * .5f) + m_groundOffset;
+        if (SphereCast(Vector3.down, distance, out var hit) && verticalVelocity.y <= 0)
+        {
+            if (!isGrounded)
+            {
+                if (EvaluateLanding(hit))
+                {
+                    EnterGround(hit);
+                }
+                else
+                {
+                    HandleHighLedge(hit);
+                }
+            }
+        }
+        else
+        {
+            ExitGround();
+        }
+    }
+
+    protected virtual void HandleHighLedge(RaycastHit hit)
+    {
+        // TODO
+    }
+
+    protected virtual bool EvaluateLanding(RaycastHit hit)
+    {
+        return IsPointUnderStep(hit.point) && Vector3.Angle(hit.normal, Vector3.up) < controller.slopeLimit;
+    }
+
+    protected virtual void EnterGround(RaycastHit hit)
+    {
+        if (!isGrounded)
+        {
+            groundHit = hit;
+            isGrounded = true;
+            entityEvents.OnGroundEnter.Invoke();
+        }
+    }
+    
+    protected virtual void ExitGround()
+    {
+        if (isGrounded)
+        {
+            isGrounded = false;
+            transform.parent = null;
+            lastGroundTime = Time.time;
+            verticalVelocity = Vector3.Max(verticalVelocity, Vector3.zero);
+            entityEvents.OnGroundExit?.Invoke();
+        }
     }
 
     protected virtual void HandleController()
