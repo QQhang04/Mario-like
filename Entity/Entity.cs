@@ -16,6 +16,7 @@ public abstract class Entity<T> : Entity where T : Entity<T>
     public float turningDragMultipler { get; set; } = 1f;
     public float topSpeedMultiplier { get; set; } = 1f;
     public float accelerationMultiplier { get; set; } = 1f;
+    public float decelerationMultiplier { get; set; } = 1f;
     
     public CharacterController controller {get; private set;}
 
@@ -84,6 +85,23 @@ public abstract class Entity<T> : Entity where T : Entity<T>
             velocity = direction * speed;
             turningVelocity = Vector3.MoveTowards(turningVelocity, Vector3.zero, turningDelta);
             lateralVelocity = velocity + turningVelocity;
+        }
+    }
+
+    public virtual void Decelerate(float deceleration)
+    {
+        var delta = deceleration * decelerationMultiplier * Time.deltaTime;
+        lateralVelocity = Vector3.MoveTowards(lateralVelocity, Vector3.zero, delta);
+    }
+
+    public virtual void FaceDirection(Vector3 direction, float degreesPerSpeed)
+    {
+        if (direction != Vector3.zero)
+        {
+            var rotation = transform.rotation;
+            var rotationDelta = degreesPerSpeed * Time.deltaTime;
+            var target = Quaternion.LookRotation(direction, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(rotation, target, rotationDelta);
         }
     }
 }

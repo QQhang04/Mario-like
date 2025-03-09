@@ -8,6 +8,10 @@ public class Player : Entity<Player>
     public int jumpCounter { get; protected set; }
     public bool holding { get; protected set; }
 
+    public virtual void FaceDirectionSmooth(Vector3 direction) =>
+        FaceDirection(direction, stats.current.rotationSpeed);
+
+    public virtual void Decelerate() => Decelerate(stats.current.deceleration);
     protected virtual void InitializeInputs() => inputs = GetComponent<PlayerInputManager>();
     protected virtual void InitializeStats() => stats = GetComponent<PlayerStatsManager>();
 

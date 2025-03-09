@@ -21,6 +21,11 @@ public class WalkPlayerState : PlayerState
             if (dot >= player.stats.current.brakeThreshold)
             {
                 player.Accelerate(inputDirection);
+                player.FaceDirectionSmooth(player.lateralVelocity);
+            }
+            else
+            {
+                player.states.Change<BrakePlayerState>();
             }
         }
     }
