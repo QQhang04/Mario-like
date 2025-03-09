@@ -1,5 +1,4 @@
 using UnityEngine;
-
 public class WalkPlayerState : PlayerState
 {
     protected override void OnEnter(Player player)
