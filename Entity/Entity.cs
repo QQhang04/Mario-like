@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 
 public abstract class Entity : MonoBehaviour
@@ -17,6 +18,7 @@ public abstract class Entity<T> : Entity where T : Entity<T>
     public float topSpeedMultiplier { get; set; } = 1f;
     public float accelerationMultiplier { get; set; } = 1f;
     public float decelerationMultiplier { get; set; } = 1f;
+    public float gravityMultiplier { get; set; } = 1f;
     
     public CharacterController controller {get; private set;}
 

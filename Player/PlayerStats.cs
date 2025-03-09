@@ -4,6 +4,10 @@ public class PlayerStats : EntityStats<PlayerStats>
 {
     [Header("General")] 
     public float rotationSpeed = 970f;
+    public float friction = 16f;
+    public float gravityTopSpeed = 50f;
+    public float gravity = 38f;
+    public float fallGravity = 65f;
     [Header("Motion Stats")] 
     public float brakeThreshold = -.8f;
     public float turningDrag = 28f;
@@ -17,7 +21,12 @@ public class PlayerStats : EntityStats<PlayerStats>
     public float runningTopSpeed = 7.5f;
     public float runningTurningDrag = 14f;
 
-    // [Header("Backflip Stats")] 
-    // public bool canBackflip = true;
-
+    [Header("Backflip Stats")] 
+    public bool canBackflip = true;
+    public float backflipJumpHeight = 23f;
+    public float backflipGravity = 35f;
+    public float backflipTurningDrag = 2.5f;
+    public float backflipAirAcceleration = 12f;
+    public float backflipTopSpeed = 7.5f;
+    public float backflipBackwardTurnForce = 8f;
 }
