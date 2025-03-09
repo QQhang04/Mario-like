@@ -13,7 +13,9 @@ public abstract class EntityStateManager<T> : EntityStateManager where T : Entit
     protected abstract List<EntityState<T>> GetStateList();
     public EntityState<T> current {get; private set;}
     public T entity { get; private set; }
+    public EntityState<T> last { get; private set; }
 
+    protected virtual void InitializeEntity() => entity = GetComponent<T>();
     protected virtual void InitializeStates()
     {
         m_list = GetStateList();
@@ -37,6 +39,7 @@ public abstract class EntityStateManager<T> : EntityStateManager where T : Entit
     protected void Start()
     {
         InitializeStates();
+        InitializeEntity();
     }
 
     public virtual void Step()
@@ -44,6 +47,30 @@ public abstract class EntityStateManager<T> : EntityStateManager where T : Entit
         if (current != null && Time.timeScale > 0)
         {
             current.Step(entity);
+        }
+    }
+
+    public virtual void Change<TState>() where TState : EntityState<T>
+    {
+        var type = typeof(TState);
+        if (m_states.ContainsKey(type))
+        {
+            Change(m_states[type]);
+        }
+    }
+
+    public virtual void Change(EntityState<T> to)
+    {
+        if (to != null && Time.timeScale > 0)
+        {
+            if (current != null)
+            {
+                current.Exit(entity);
+                last = current;
+            }
+
+            current = to;
+            current.Enter(entity);
         }
     }
 }
