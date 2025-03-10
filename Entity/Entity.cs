@@ -14,7 +14,8 @@ public abstract class Entity : MonoBehaviour
     public float gravityMultiplier { get; set; } = 1f;
     
     public CharacterController controller {get; protected set;}
-
+    public float originalHeight { get; protected set; }
+    public Vector3 unsizePosition => position - transform.up * height * 0.5f + transform.up * originalHeight * 0.5f;
     public Vector3 lateralVelocity
     {
         get {return new Vector3(velocity.x, 0, velocity.z);}
@@ -49,18 +50,6 @@ public abstract class Entity : MonoBehaviour
 
 public abstract class Entity<T> : Entity where T : Entity<T>
 {
-    protected virtual void OnDrawGizmos()
-    {
-        // 设置 Gizmos 的颜色
-        Gizmos.color = Color.yellow;
-
-        // 绘制 stepPosition 点（在世界坐标系中的位置）
-        Gizmos.DrawSphere(stepPosition, .1f); // 可以调整半径大小
-        
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawSphere(groundHit.point, 0.1f); // 例如绘制 position 点
-
-    }
     public EntityStateManager<T> states {get; private set;}
     protected virtual void HandleState() => states.Step();
     protected virtual void InitializeStateManager() => states = GetComponent<EntityStateManager<T>>();
@@ -73,6 +62,8 @@ public abstract class Entity<T> : Entity where T : Entity<T>
 
         controller.skinWidth = .005f;
         controller.minMoveDistance = 0;
+        
+        originalHeight = controller.height;
     }
 
     protected virtual void Awake()
