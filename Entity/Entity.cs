@@ -49,6 +49,18 @@ public abstract class Entity : MonoBehaviour
 
 public abstract class Entity<T> : Entity where T : Entity<T>
 {
+    protected virtual void OnDrawGizmos()
+    {
+        // 设置 Gizmos 的颜色
+        Gizmos.color = Color.yellow;
+
+        // 绘制 stepPosition 点（在世界坐标系中的位置）
+        Gizmos.DrawSphere(stepPosition, .1f); // 可以调整半径大小
+        
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawSphere(groundHit.point, 0.1f); // 例如绘制 position 点
+
+    }
     public EntityStateManager<T> states {get; private set;}
     protected virtual void HandleState() => states.Step();
     protected virtual void InitializeStateManager() => states = GetComponent<EntityStateManager<T>>();

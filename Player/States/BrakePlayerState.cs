@@ -28,7 +28,7 @@ public class BrakePlayerState : PlayerState
         //         player.states.Change<IdlePlayerState>();
         //     }
         // }
-        
+        player.Jump();
         player.Fall();
         player.Decelerate();
         

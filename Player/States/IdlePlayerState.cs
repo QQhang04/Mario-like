@@ -12,6 +12,7 @@ public class IdlePlayerState : PlayerState
 
     protected override void OnStep(Player player)
     {
+        player.Jump();
         player.Gravity();
         player.Fall();
         player.Friction();

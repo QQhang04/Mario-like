@@ -21,7 +21,17 @@ public class Player : Entity<Player>
         InitializeInputs();
         InitializeStats();
     }
-    
+
+    protected override void EnterGround(RaycastHit hit)
+    {
+        if (!isGrounded)
+        {
+            groundHit = hit;
+            isGrounded = true;
+            entityEvents.OnGroundEnter.Invoke();
+            jumpCounter = 0;
+        }
+    }
     public virtual void Accelerate(Vector3 direction)
     {
         var turningDrag = isGrounded && inputs.GetRun() 
@@ -78,5 +88,32 @@ public class Player : Entity<Player>
         {
             states.Change<FallPlayerState>();
         }
+    }
+
+    public virtual void Jump()
+    {
+        var canMultiJump = (jumpCounter > 0) && (jumpCounter < stats.current.multiJumps);
+        var canCoyoteJump = (jumpCounter == 0) && (Time.time < lastGroundTime + stats.current.coyoteJumpThreshold);
+
+        if (isGrounded || canMultiJump || canCoyoteJump)
+        {
+            if (inputs.GetJumpDown())
+            {
+                Jump(stats.current.maxJumpHeight);
+            }
+        }
+
+        if (inputs.GetJumpUp() && (jumpCounter > 0) && verticalVelocity.y > stats.current.minJumpHeight)
+        {
+            verticalVelocity = stats.current.minJumpHeight * Vector3.up;
+        }
+    }
+
+    public virtual void Jump(float jumpHeight)
+    {
+        jumpCounter++;
+        verticalVelocity = Vector3.up * jumpHeight;
+        states.Change<FallPlayerState>();
+        playerEvents.OnJump.Invoke();
     }
 }
