@@ -43,6 +43,14 @@ public abstract class EntityStateManager<T> : EntityStateManager where T : Entit
         InitializeStates();
         InitializeEntity();
     }
+    
+    public virtual void OnContact(Collider other)
+    {
+        if (current != null && Time.timeScale > 0)
+        {
+            current.OnContact(entity, other);
+        }
+    }
 
     public virtual void Step()
     {

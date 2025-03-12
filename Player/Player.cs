@@ -14,12 +14,14 @@ public class Player : Entity<Player>
     public virtual void Decelerate() => Decelerate(stats.current.deceleration);
     protected virtual void InitializeInputs() => inputs = GetComponent<PlayerInputManager>();
     protected virtual void InitializeStats() => stats = GetComponent<PlayerStatsManager>();
+    protected virtual void InitialTag() => tag = GameTag.Player;
 
     protected override void Awake()
     {
         base.Awake();
         InitializeInputs();
         InitializeStats();
+        InitialTag();
     }
 
     protected override void EnterGround(RaycastHit hit)
@@ -115,5 +117,15 @@ public class Player : Entity<Player>
         verticalVelocity = Vector3.up * jumpHeight;
         states.Change<FallPlayerState>();
         playerEvents.OnJump.Invoke();
+    }
+
+    public virtual void PushRigidbody(Collider other)
+    {
+        if (!IsPointUnderStep(other.bounds.max) &&
+            other.TryGetComponent(out Rigidbody rigidbody))
+        {
+            var force = lateralVelocity * stats.current.pushForce;
+            rigidbody.velocity += force / rigidbody.mass * Time.deltaTime;
+        }
     }
 }

@@ -53,9 +53,9 @@ public class Collectable : MonoBehaviour
 
     protected virtual void InitializeAudio()
     {
-        if (!TryGetComponent(out AudioSource m_audio))
+        if (!TryGetComponent(out m_audio))
         {
-            m_audio = GetComponent<AudioSource>();
+            m_audio = gameObject.AddComponent<AudioSource>();
         }
     }
     
@@ -73,7 +73,7 @@ public class Collectable : MonoBehaviour
     
     protected virtual void InitializeDisplay()
     {
-        display.SetActive(hidden);
+        display.SetActive(!hidden);
     }
     
     protected virtual void InitializeVelocity()
