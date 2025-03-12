@@ -24,7 +24,14 @@ public class ItemBox : MonoBehaviour, IEntityContact
     {
         foreach (var collectable in collectables)
         {
-            
+            if (!collectable.hidden)
+            {
+                collectable.gameObject.SetActive(false);
+            }
+            else
+            {
+                collectable.collectOnContact = false;
+            }
         }
     }
 
@@ -34,7 +41,22 @@ public class ItemBox : MonoBehaviour, IEntityContact
         {
             if (m_index < collectables.Length)
             {
-                // if (collectables[m_index].)
+                if (collectables[m_index].hidden)
+                {
+                    collectables[m_index].Collect(player);
+                }
+                else
+                {
+                    collectables[m_index].gameObject.SetActive(true);
+                }
+
+                m_index = Mathf.Clamp(m_index + 1, 0, collectables.Length);
+                onCollect?.Invoke();
+            }
+
+            if (m_index == collectables.Length)
+            {
+                Disable();
             }
         }
     }
@@ -62,7 +84,7 @@ public class ItemBox : MonoBehaviour, IEntityContact
         {
             if (entity.velocity.y > 0 && entity.position.y < m_collider.bounds.min.y)
             {
-                
+                Collect(player);
             }
         }
     }

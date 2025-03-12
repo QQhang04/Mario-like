@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
@@ -7,10 +8,18 @@ public class Collectable : MonoBehaviour
     [Header("General Settings")] 
     public GameObject display;
 
+    public bool collectOnContact = true; 
+    public AudioClip clip;
+    public int times = 1;
+    public ParticleSystem particles;
+
     public float ghostingDuration = 0.5f;
     
     [Header("Visibility Settings")] 
     public bool hidden;
+    public float quickShowHeight = 2f;
+    public float quickShowDuration = .25f;
+    public float hideDuration = .5f;
     
     [Header("Life Time")] 
     public bool hasLifeTime;
@@ -26,7 +35,9 @@ public class Collectable : MonoBehaviour
     public float maxBounceYVelocity = 10f;
     public AudioClip collectClip;
     public float minForceToStopPhysics = 3f;
-    
+
+    [Space(15)] 
+    public PlayerEvent onCollect;
     protected AudioSource m_audio;
     protected Collider m_collider;
     protected Vector3 m_velocity;
@@ -150,6 +161,59 @@ public class Collectable : MonoBehaviour
         transform.position += m_velocity * Time.deltaTime;
     }
 
+    public virtual void Collect(Player player)
+    {
+        if (!m_ghosting && !m_vanished)
+        {
+            if (!hidden)
+            {
+                Vanish();
+                
+                if (particles)
+                    particles.Play();
+            }
+            else
+            {
+                StartCoroutine(QuickShowRoutine());
+            }
+            
+            StartCoroutine(CollectRoutine(player));
+        }
+    }
+
+    protected virtual IEnumerator CollectRoutine(Player player)
+    {
+        for (int i = 0; i < times; i++)
+        {
+            m_audio.Stop();
+            m_audio.PlayOneShot(clip);
+            onCollect.Invoke(player);
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
+    protected virtual IEnumerator QuickShowRoutine()
+    {
+        var elapsedTime = 0f;
+        var initialPosition = transform.position;
+        var targetPosition = initialPosition + Vector3.up * quickShowHeight;
+        
+        display.SetActive(true);
+        m_collider.enabled = false;
+
+        while (elapsedTime < quickShowDuration)
+        {
+            var t = elapsedTime / quickShowDuration;
+            transform.position = Vector3.Lerp(initialPosition, targetPosition, t);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        
+        transform.position = targetPosition;
+        yield return new WaitForSeconds(hideDuration);
+        transform.position = initialPosition;
+        Vanish();
+    }
 
     private void Awake()
     {
@@ -172,6 +236,26 @@ public class Collectable : MonoBehaviour
                 HandleMovement();
                 HandleSweep();
             }
+        }
+    }
+
+    protected virtual void OnTriggerStay(Collider other)
+    {
+        if (collectOnContact && other.CompareTag(GameTag.Player))
+        {
+            if (other.TryGetComponent<Player>(out var player))
+            {
+                Collect(player);
+            }
+        }
+    }
+
+    protected void OnDrawGizmos()
+    {
+        if (usePhysics)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position, collisionRadius);
         }
     }
 }
