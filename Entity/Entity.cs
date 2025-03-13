@@ -148,7 +148,7 @@ public abstract class Entity<T> : Entity where T : Entity<T>
                     contact.OnEntityContact((T)this);
                 }
 
-                if (m_contactBuffer[i].bounds.min.y > controller.bounds.max.y)
+                if (m_contactBuffer[i].bounds.min.y > position.y)
                 {
                     verticalVelocity = Vector3.Min(verticalVelocity, Vector3.zero);
                 }
@@ -223,7 +223,8 @@ public abstract class Entity<T> : Entity where T : Entity<T>
                 speed = Mathf.Clamp(speed, -targetTopSpeed, targetTopSpeed);
             }
 
-            velocity = direction * speed;
+            velocity = direction * speed;;
+            
             turningVelocity = Vector3.MoveTowards(turningVelocity, Vector3.zero, turningDelta);
             lateralVelocity = velocity + turningVelocity;
         }
