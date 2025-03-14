@@ -44,12 +44,31 @@ public class UISaveCard : MonoBehaviour
 
 	public virtual void Create()
 	{
-		
+		var data = GameData.Create();
+		GameSaver.Instance.Save(data, m_index);
+		Fill(m_index, data);
+		EventSystem.current.SetSelectedGameObject(loadButton.gameObject);
 	}
 
 	public virtual void Fill(int index, GameData data)
 	{
-		
+		m_index = index;
+		isFilled = data != null;
+		dataContainer.SetActive(isFilled);
+		emptyContainer.SetActive(!isFilled);
+		loadButton.interactable = isFilled;
+		deleteButton.interactable = isFilled;
+		newGameButton.interactable = !isFilled;
+
+		if (data != null)
+		{
+			m_data = data;
+			retries.text = data.retries.ToString(retriesFormat);
+			stars.text = data.retries.ToString(starsFormat);
+			coins.text = data.retries.ToString(coinsFormat);
+			createdAt.text = DateTime.Parse(data.createdAt).ToLocalTime().ToString(dateFormat);
+			updatedAt.text = DateTime.Parse(data.updatedAt).ToLocalTime().ToString(dateFormat);
+		}
 	}
 
 	protected virtual void Start()

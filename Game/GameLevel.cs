@@ -4,7 +4,7 @@ using UnityEngine;
 [Serializable]
 public class GameLevel
 {
-    public bool islocked;
+    public bool locked;
     public string scene;
     public string name;
     public string description;
