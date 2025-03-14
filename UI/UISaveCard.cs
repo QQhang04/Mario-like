@@ -34,7 +34,8 @@ public class UISaveCard : MonoBehaviour
 
 	public virtual void Load()
 	{
-		
+		Game.Instance.LoadState(m_index, m_data);
+		GameLoader.Instance.Load(nextScene);
 	}
 
 	public virtual void Delete()

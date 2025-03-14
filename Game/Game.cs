@@ -4,13 +4,14 @@ using UnityEngine.Events;
 
 public class Game : Singleton<Game>
 {
-    /// <summary>
-    /// Called when the amount of retries change.
-    /// </summary>
     public UnityEvent<int> OnRetriesSet;
 
     public int initialRetries = 3;
+    
     protected int m_retries;
+    protected int m_dataIndex;
+    protected DateTime m_createdAt;
+    protected DateTime m_updatedAt;
     
     public int retries
     {
@@ -24,6 +25,19 @@ public class Game : Singleton<Game>
     }
     
     public List<GameLevel> levels;
+
+    public virtual void LoadState(int index, GameData data)
+    {
+        m_dataIndex = index;
+        m_retries = data.retries;
+        m_createdAt = DateTime.Parse(data.createdAt);
+        m_updatedAt = DateTime.Parse(data.updatedAt);
+
+        for (int i = 0; i < data.levels.Length; i++)
+        {
+            levels[i].LoadState(data.levels[i]);
+        }
+    }
 
     protected override void Awake()
     {

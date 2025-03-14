@@ -14,4 +14,20 @@ public class GameLevel
     public float time { get; set; }
     public static readonly int starsLevel = 3;
     public bool[] stars { get; set; } = new bool[starsLevel];
+
+    public virtual void LoadState(LevelData levelData)
+    {
+        locked = levelData.locked;
+        coins = levelData.coins;
+        time = levelData.time;
+        stars = levelData.stars;
+    }
+    
+    public static string FormattedTime(float time)
+    {
+        var minutes = Mathf.FloorToInt(time / 60f);
+        var seconds = Mathf.FloorToInt(time % 60f);
+        var milliseconds = Mathf.FloorToInt((time * 100f) % 100f);
+        return minutes.ToString("0") + "'" + seconds.ToString("00") + "\"" + milliseconds.ToString("00");
+    }
 }
