@@ -47,6 +47,12 @@ public class Game : Singleton<Game>
         }
     }
 
+    public virtual GameLevel GetCurrentLevel()
+    {
+        var scene = GameLoader.Instance.currentScene; 
+        return levels.Find(level => level.scene == scene);
+    }
+
     protected override void Awake()
     {
         base.Awake();

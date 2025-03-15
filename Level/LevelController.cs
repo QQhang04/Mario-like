@@ -7,5 +7,6 @@ using UnityEngine;
 /// </summary>
 public class LevelController : MonoBehaviour
 {
-    
+    protected LevelScore m_score => LevelScore.Instance;
+    public virtual void AddCoins(int amount) => m_score.coins += amount;
 }

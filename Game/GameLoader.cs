@@ -15,6 +15,8 @@ public class GameLoader : Singleton<GameLoader>
     public float startDelay = 1f;
     public float finishDelay = 1f;
     
+    public string currentScene => SceneManager.GetActiveScene().name;
+    
     public virtual void Load(string scene)
     {
         StartCoroutine(LoadRoutine(scene));

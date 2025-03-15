@@ -8,6 +8,8 @@ public class Player : Entity<Player>
     public int jumpCounter { get; protected set; }
     public bool holding { get; protected set; }
 
+    public Health health { get; protected set; }
+
     public virtual void FaceDirectionSmooth(Vector3 direction) =>
         FaceDirection(direction, stats.current.rotationSpeed);
 
@@ -15,6 +17,7 @@ public class Player : Entity<Player>
     protected virtual void InitializeInputs() => inputs = GetComponent<PlayerInputManager>();
     protected virtual void InitializeStats() => stats = GetComponent<PlayerStatsManager>();
     protected virtual void InitialTag() => tag = GameTag.Player;
+    protected virtual void InitializeHealth() => health = GetComponent<Health>();
 
     protected override void Awake()
     {
@@ -22,6 +25,7 @@ public class Player : Entity<Player>
         InitializeInputs();
         InitializeStats();
         InitialTag();
+        InitializeHealth();
     }
 
     protected override void EnterGround(RaycastHit hit)
@@ -112,7 +116,7 @@ public class Player : Entity<Player>
     }
 
     public virtual void Jump(float jumpHeight)
-    {
+    { 
         jumpCounter++;
         verticalVelocity = Vector3.up * jumpHeight;
         states.Change<FallPlayerState>();
