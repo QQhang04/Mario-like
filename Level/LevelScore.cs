@@ -30,6 +30,25 @@ public class LevelScore : Singleton<LevelScore>
     
     public float time { get; protected set; }
 
+    public virtual void Consolidate()
+    {
+        if (m_level != null)
+        {
+            if (m_level.time == 0 || time < m_level.time)
+            {
+                m_level.time = time;
+            }
+
+            if (coins > m_level.coins)
+            {
+                m_level.coins = coins;
+            }
+
+            m_level.stars = (bool[])stars.Clone();
+            m_game.RequestSaving();
+        }
+    }
+
     protected void Start()
     {
         m_game = Game.Instance;

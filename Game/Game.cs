@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class Game : Singleton<Game>
 {
     public UnityEvent<int> OnRetriesSet;
+    public UnityEvent OnSavingRequested;
 
     public int initialRetries = 3;
     
@@ -51,6 +54,43 @@ public class Game : Singleton<Game>
     {
         var scene = GameLoader.Instance.currentScene; 
         return levels.Find(level => level.scene == scene);
+    }
+
+    public virtual int GetCurrentLevelIndex()
+    {
+        var scene = GameLoader.Instance.currentScene;
+        return levels.FindIndex((level) => level.scene == scene);
+    }
+
+    public virtual void UnlockNextLevel()
+    {
+        var index = GetCurrentLevelIndex() + 1;
+        if (index >= 0 && index < levels.Count)
+        {
+            levels[index].locked = false;
+        }
+    }
+
+    public virtual void RequestSaving()
+    {
+        GameSaver.Instance.Save(ToData(), m_dataIndex);
+        OnSavingRequested?.Invoke();
+    }
+
+    public virtual LevelData[] levelData()
+    {
+        return levels.Select((level => level.ToData())).ToArray();
+    }
+
+    public virtual GameData ToData()
+    {
+        return new GameData()
+        {
+            retries = m_retries,
+            levels = levelData(),
+            createdAt = m_createdAt.ToString(),
+            updatedAt = m_updatedAt.ToString()
+        };
     }
 
     protected override void Awake()

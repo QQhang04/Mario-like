@@ -36,4 +36,11 @@ public class PlayerStats : EntityStats<PlayerStats>
     public float coyoteJumpThreshold = .15f;
     public float maxJumpHeight = 17f;
     public float minJumpHeight = 1f;
+
+    [Header("Stomp Attack Stats")] 
+    public bool canStompAttack = true;
+    public float stompAirTime = .8f;
+    public float stompDownwardForce = 20f;
+    public float stompGroundTime = .5f;
+    public float stompGroundLeapHeight = 10f;
 }

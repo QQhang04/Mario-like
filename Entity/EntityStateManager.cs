@@ -83,4 +83,11 @@ public abstract class EntityStateManager<T> : EntityStateManager where T : Entit
             current.Enter(entity);
         }
     }
+
+    public virtual bool IsCurrentOfType(Type type)
+    {
+        if (current == null) return false;
+        
+        return current.GetType() == type;
+    }
 }

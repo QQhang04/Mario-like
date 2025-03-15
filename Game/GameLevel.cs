@@ -30,4 +30,15 @@ public class GameLevel
         var milliseconds = Mathf.FloorToInt((time * 100f) % 100f);
         return minutes.ToString("0") + "'" + seconds.ToString("00") + "\"" + milliseconds.ToString("00");
     }
+
+    public virtual LevelData ToData()
+    {
+        return new LevelData()
+        {
+            locked = this.locked,
+            coins = this.coins,
+            time = this.time,
+            stars = this.stars
+        };
+    }
 }
