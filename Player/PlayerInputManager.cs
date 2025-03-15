@@ -13,6 +13,7 @@ public class PlayerInputManager : MonoBehaviour
    protected InputAction m_movement;
    protected InputAction m_run;
    protected InputAction m_look;
+   protected InputAction m_pause;
    
    protected Camera m_camera;
    protected float? m_lastJumpTime;
@@ -50,6 +51,7 @@ public class PlayerInputManager : MonoBehaviour
       m_run = actions["Run"];
       m_jump = actions["Jump"];
       m_look = actions["Look"];
+      m_pause = actions["Pause"];
    }
 
    public virtual bool GetRun() => m_run.IsPressed();
@@ -119,4 +121,6 @@ public class PlayerInputManager : MonoBehaviour
       
       return GetAxisWithCrossDeadZone(value);
    }
+   
+   public virtual bool GetPauseDown() => m_pause.WasPressedThisFrame();
 }

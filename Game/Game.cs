@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Events;
 
 public class Game : Singleton<Game>
@@ -25,6 +26,13 @@ public class Game : Singleton<Game>
     }
     
     public List<GameLevel> levels;
+
+    public static void LockCursor(bool value = true)
+    {
+#if UNITY_STANDALONE
+        Cursor.lockState = value ? CursorLockMode.Locked : CursorLockMode.None;
+#endif
+    }
 
     public virtual void LoadState(int index, GameData data)
     {

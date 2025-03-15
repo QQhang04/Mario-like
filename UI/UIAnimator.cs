@@ -28,6 +28,12 @@ public class UIAnimator : MonoBehaviour
         OnHide?.Invoke();
     }
     
+    /// <summary>
+    ///  SetActive(true) 是 Unity 提供的 GameObject 原生方法，
+    /// 它本身不依赖 Awake()，即便 GameObject 一开始是未激活的，
+    /// 其他对象仍可以访问该 GameObject 并调用 SetActive(true)。
+    /// </summary>
+    /// <param name="value">是否激活</param>
     public virtual void SetActive(bool value) => gameObject.SetActive(value);
 
     protected virtual void Awake()
