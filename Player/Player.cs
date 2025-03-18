@@ -7,8 +7,11 @@ public class Player : Entity<Player>
     public PlayerStatsManager stats {get; protected set;}
     public int jumpCounter { get; protected set; }
     public bool holding { get; protected set; }
+    public bool onWater { get; protected set; }
 
     public Health health { get; protected set; }
+    
+    public virtual void SnapToGround() => SnapToGround(stats.current.snapForce);
 
     public virtual void FaceDirectionSmooth(Vector3 direction) =>
         FaceDirection(direction, stats.current.rotationSpeed);
@@ -131,5 +134,38 @@ public class Player : Entity<Player>
             var force = lateralVelocity * stats.current.pushForce;
             rigidbody.velocity += force / rigidbody.mass * Time.deltaTime;
         }
+    }
+
+    public override void ApplyDamage(int amount, Vector3 origin)
+    {
+        if (!health.isEmpty && !health.recovering)
+        {
+            health.Damage(amount);
+            
+            var damageDir = origin - transform.position;
+            damageDir.y = 0;
+            damageDir = damageDir.normalized;
+            FaceDirection(damageDir);
+            lateralVelocity = -transform.forward * stats.current.hurtBackwardsForce;
+
+            if (!onWater)
+            {
+                verticalVelocity = Vector3.up * stats.current.hurtUpwardForce;
+                states.Change<HurtPlayerState>();
+            }
+
+            playerEvents.OnHurt?.Invoke();
+
+            if (health.isEmpty)
+            {
+                Throw();
+                playerEvents.OnDie?.Invoke();
+            }
+        }
+    }
+
+    public virtual void Throw()
+    {
+        // todo
     }
 }

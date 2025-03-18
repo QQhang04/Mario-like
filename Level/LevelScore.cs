@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using UnityEngine.Events;
 
 public class LevelScore : Singleton<LevelScore>
@@ -60,5 +61,13 @@ public class LevelScore : Singleton<LevelScore>
         }
         
         OnScoreLoaded?.Invoke();
+    }
+
+    protected void Update()
+    {
+        if (!stopTime)
+        {
+            time += Time.deltaTime;
+        }
     }
 }

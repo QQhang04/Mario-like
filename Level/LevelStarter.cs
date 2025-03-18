@@ -19,7 +19,7 @@ public class LevelStarter : Singleton<LevelStarter>
         m_level.player.controller.enabled = false;
         m_level.player.inputs.enabled = false;
         yield return new WaitForSeconds(enablePlayerDelay);
-        // m_score.stopTime = false;
+        m_score.stopTime = false;
         m_level.player.controller.enabled = true;
         m_level.player.inputs.enabled = true;
         m_pauser.canPause = true;

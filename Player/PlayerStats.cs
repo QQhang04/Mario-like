@@ -2,13 +2,14 @@ using UnityEngine;
 
 public class PlayerStats : EntityStats<PlayerStats>
 {
-    [Header("General")] 
+    [Header("General stats")] 
     public float rotationSpeed = 970f;
     public float friction = 16f;
     public float gravityTopSpeed = 50f;
     public float gravity = 38f;
     public float fallGravity = 65f;
     public float pushForce = 4f;
+    public float snapForce = 15f;
     [Header("Motion Stats")] 
     public float brakeThreshold = -.8f;
     public float turningDrag = 28f;
@@ -43,4 +44,8 @@ public class PlayerStats : EntityStats<PlayerStats>
     public float stompDownwardForce = 20f;
     public float stompGroundTime = .5f;
     public float stompGroundLeapHeight = 10f;
+    
+    [Header("Hurt Stats")]
+    public float hurtUpwardForce = 10f;
+    public float hurtBackwardsForce = 5f;
 }

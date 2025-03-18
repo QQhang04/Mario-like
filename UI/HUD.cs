@@ -22,7 +22,7 @@ public class HUD : MonoBehaviour
    protected Player m_player;
 
    protected float timerStep;
-   protected static float timerRefreshRate = .1f;
+   protected static float timerRefreshRate = .3f;
    
    protected virtual void UpdateCoins(int value)
    {
@@ -36,7 +36,7 @@ public class HUD : MonoBehaviour
 
    protected virtual void UpdateHealth()
    {
-      health.text = m_player.health.current.ToString(healthFormat);
+      health.text = m_player.health?.current.ToString(healthFormat);
    }
 
    protected virtual void UpdateStars(bool[] value)
@@ -46,20 +46,6 @@ public class HUD : MonoBehaviour
          starsImages[i].enabled = value[i];
       }
    }
-
-   /*
-   protected virtual void UpdateTimer()
-   {
-      timerStep += Time.deltaTime;
-
-      if (timerStep >= timerRefreshRate)
-      {
-         var time = m_score.time;
-         timer.text = GameLevel.FormattedTime(m_score.time);
-         timerStep = 0;
-      }
-   }
-   */
 
    public virtual void Refresh()
    {

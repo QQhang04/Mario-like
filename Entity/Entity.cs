@@ -235,6 +235,14 @@ public abstract class Entity<T> : Entity where T : Entity<T>
         var delta = deceleration * decelerationMultiplier * Time.deltaTime;
         lateralVelocity = Vector3.MoveTowards(lateralVelocity, Vector3.zero, delta);
     }
+    
+    public virtual void SnapToGround(float force)
+    {
+        if (isGrounded && (verticalVelocity.y <= 0))
+        {
+            verticalVelocity = Vector3.down * force;
+        }
+    }
 
     public virtual void FaceDirection(Vector3 direction, float degreesPerSpeed)
     {
@@ -245,5 +253,18 @@ public abstract class Entity<T> : Entity where T : Entity<T>
             var target = Quaternion.LookRotation(direction, Vector3.up);
             transform.rotation = Quaternion.RotateTowards(rotation, target, rotationDelta);
         }
+    }
+    
+    public virtual void FaceDirection(Vector3 direction)
+    {
+        if (direction.sqrMagnitude > 0)
+        {
+            var rotation = Quaternion.LookRotation(direction, Vector3.up);
+            transform.rotation = rotation;
+        }
+    }
+    
+    public virtual void ApplyDamage(int amount, Vector3 origin)
+    {
     }
 }
