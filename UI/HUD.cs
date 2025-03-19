@@ -36,7 +36,7 @@ public class HUD : MonoBehaviour
 
    protected virtual void UpdateHealth()
    {
-      health.text = m_player.health?.current.ToString(healthFormat);
+      health.text = m_player.health.current.ToString(healthFormat);
    }
 
    protected virtual void UpdateStars(bool[] value)
@@ -75,7 +75,7 @@ public class HUD : MonoBehaviour
       {
          m_score.OnCoinsSet.AddListener(UpdateCoins);
          m_score.OnStarsSet.AddListener(UpdateStars);
-         m_score.OnRetriesSet.AddListener(UpdateRetries);
+         m_game.OnRetriesSet.AddListener(UpdateRetries);
          m_player.health.onChange.AddListener(UpdateHealth);
       });
       Refresh();

@@ -5,6 +5,10 @@ public class Player : Entity<Player>
     public PlayerEvents playerEvents;
     public PlayerInputManager inputs {get; protected set;}
     public PlayerStatsManager stats {get; protected set;}
+    
+    protected Vector3 m_respawnPosition;
+    protected Quaternion m_respawnRotation;
+    
     public int jumpCounter { get; protected set; }
     public bool holding { get; protected set; }
     public bool onWater { get; protected set; }
@@ -21,6 +25,11 @@ public class Player : Entity<Player>
     protected virtual void InitializeStats() => stats = GetComponent<PlayerStatsManager>();
     protected virtual void InitialTag() => tag = GameTag.Player;
     protected virtual void InitializeHealth() => health = GetComponent<Health>();
+    protected virtual void InitializeRespawn()
+    {
+        m_respawnPosition = transform.position;
+        m_respawnRotation = transform.rotation;
+    }
 
     protected override void Awake()
     {
@@ -29,6 +38,12 @@ public class Player : Entity<Player>
         InitializeStats();
         InitialTag();
         InitializeHealth();
+        InitializeRespawn();
+    }
+
+    protected override void Update()
+    {
+        base.Update();
     }
 
     protected override void EnterGround(RaycastHit hit)
@@ -55,6 +70,17 @@ public class Player : Entity<Player>
         var finalAcceleration = isGrounded ? acceleration : stats.current.airAcceleration;
         
         Accelerate(direction, turningDrag, finalAcceleration, topSpeed);
+        
+        if (inputs.GetRunUp())
+        {
+            lateralVelocity = Vector3.ClampMagnitude(lateralVelocity, topSpeed);
+        }
+    }
+    
+    public virtual void AccelerateToInputDirection()
+    {
+        var inputDirection = inputs.GetMovementCameraDirection();
+        Accelerate(inputDirection);
     }
 
     public virtual void Backflip(float force)
@@ -168,4 +194,15 @@ public class Player : Entity<Player>
     {
         // todo
     }
+
+    public virtual void Respawn()
+    {
+        health.Reset();
+        controller.enabled = false;
+        transform.SetPositionAndRotation(m_respawnPosition, m_respawnRotation);
+        controller.enabled = true;
+        controller.Move(Vector3.zero);
+        states.Change<IdlePlayerState>();
+    }
+    
 }

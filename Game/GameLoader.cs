@@ -21,6 +21,11 @@ public class GameLoader : Singleton<GameLoader>
     {
         StartCoroutine(LoadRoutine(scene));
     }
+    
+    public virtual void Reload()
+    {
+        StartCoroutine(LoadRoutine(currentScene));
+    }
 
     protected virtual IEnumerator LoadRoutine(string scene)
     {

@@ -7,7 +7,6 @@ public class LevelScore : Singleton<LevelScore>
     // 当ui数据数量改变时发出广播
     public UnityEvent<int> OnCoinsSet;
     public UnityEvent<bool[]> OnStarsSet;
-    public UnityEvent<int> OnRetriesSet;
     // 确认场景数据加载完之后再做后处理
     public UnityEvent OnScoreLoaded;
     

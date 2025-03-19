@@ -55,6 +55,7 @@ public class PlayerInputManager : MonoBehaviour
    }
 
    public virtual bool GetRun() => m_run.IsPressed();
+   public virtual bool GetRunUp() => m_run.WasReleasedThisFrame();
 
    public virtual Vector3 GetMovementDirection()
    {
