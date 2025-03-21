@@ -55,4 +55,11 @@ public class PlayerStats : EntityStats<PlayerStats>
     public float spinDuration = 0.5f;
     public float airSpinUpwardForce = 10f;
     public int allowedAirSpins = 1;
+    
+    [Header("Pick and Throw Stats")]
+    public bool canPickUp = true;
+    public bool canPickUpOnAir = false;
+    public bool canJumpWhileHolding = true;
+    public float pickDistance = 0.5f;
+    public float throwVelocityMultiplier = 1.5f;
 }

@@ -8,6 +8,7 @@ public class Player : Entity<Player>
     
     protected Vector3 m_respawnPosition;
     protected Quaternion m_respawnRotation;
+    public Transform pickableSlot;
     
     public int jumpCounter { get; protected set; }
     public bool holding { get; protected set; }
@@ -15,6 +16,7 @@ public class Player : Entity<Player>
     public int airSpinCounter { get; protected set; }
 
     public Health health { get; protected set; }
+    public Pickable pickable { get; protected set; }
     
     public virtual void SnapToGround() => SnapToGround(stats.current.snapForce);
 
@@ -207,9 +209,59 @@ public class Player : Entity<Player>
         }
     }
 
+    public virtual void PickAndThrow()
+    {
+        if (stats.current.canPickUp && inputs.GetPickAndDropDown())
+        {
+            if (!holding)
+            {
+                if (CapsuleCast(transform.forward,
+                        stats.current.pickDistance, out var hit))
+                {
+                    if (hit.transform.TryGetComponent(out Pickable pickable))
+                    {
+                        PickUp(pickable);
+                    }
+                }
+            }
+            else
+            {
+                Throw();
+            }
+        }
+    }
+
+    public virtual void PickUp(Pickable pickable)
+    {
+        if (!holding && (isGrounded || stats.current.canPickUpOnAir))
+        {
+            holding = true;
+            this.pickable = pickable;
+            pickable.Pickup(pickableSlot);
+            pickable.onRespawn.AddListener(RemovePickable);
+            playerEvents.OnPickUp?.Invoke();
+        }
+    }
+
+    public virtual void RemovePickable()
+    {
+        if (holding)
+        {
+            pickable = null;
+            holding = false;
+        }
+    }
+
     public virtual void Throw()
     {
-        // todo
+        if (holding)
+        {
+            var force = lateralVelocity.magnitude * stats.current.throwVelocityMultiplier;
+            pickable.Release(transform.forward, force);
+            pickable = null;
+            holding = false;
+            playerEvents.OnThrow?.Invoke();
+        }
     }
 
     public virtual void Respawn()

@@ -63,6 +63,24 @@ public abstract class Entity : MonoBehaviour
     public virtual void ApplyDamage(int amount, Vector3 origin)
     {
     }
+
+    public virtual bool CapsuleCast(Vector3 direction, float distance, int layer = Physics.DefaultRaycastLayers,
+        QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.Ignore)
+    {
+        return CapsuleCast(direction, distance, out _, layer, queryTriggerInteraction);
+    }
+
+    public virtual bool CapsuleCast(Vector3 direction, float distance,
+        out RaycastHit hit, int layer = Physics.DefaultRaycastLayers,
+        QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.Ignore)
+    {
+        var origin = position - direction * radius + center; //确保胶囊体在投射方向上稍微向后移动，避免投射从胶囊体内部开始（可能会导致错误的物理检测）。
+        var offset = transform.up * (height * 0.5f - radius);
+        var top = origin + offset;
+        var bottom = origin - offset;
+        return Physics.CapsuleCast(top, bottom, radius, direction,
+            out hit, distance + radius, layer, queryTriggerInteraction);
+    }
 }
 
 public abstract class Entity<T> : Entity where T : Entity<T>
