@@ -12,6 +12,7 @@ public class Player : Entity<Player>
     public int jumpCounter { get; protected set; }
     public bool holding { get; protected set; }
     public bool onWater { get; protected set; }
+    public int airSpinCounter { get; protected set; }
 
     public Health health { get; protected set; }
     
@@ -150,6 +151,22 @@ public class Player : Entity<Player>
         verticalVelocity = Vector3.up * jumpHeight;
         states.Change<FallPlayerState>();
         playerEvents.OnJump.Invoke();
+    }
+
+    public virtual void ResetAirSpins() => airSpinCounter = 0;
+    public virtual void Spin()
+    {
+        bool canAirSpin = isGrounded || (stats.current.canAirSpin && airSpinCounter < stats.current.allowedAirSpins);
+        if (stats.current.canSpin && canAirSpin && !holding && inputs.GetSpinDown())
+        {
+            if (!isGrounded)
+            {
+                airSpinCounter++;
+            }
+            
+            states.Change<SpinPlayerState>();
+            playerEvents.OnSpin?.Invoke();
+        }
     }
 
     public virtual void PushRigidbody(Collider other)

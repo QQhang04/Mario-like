@@ -48,4 +48,11 @@ public class PlayerStats : EntityStats<PlayerStats>
     [Header("Hurt Stats")]
     public float hurtUpwardForce = 10f;
     public float hurtBackwardsForce = 5f;
+    
+    [Header("Spin Stats")]
+    public bool canSpin = true;
+    public bool canAirSpin = true;
+    public float spinDuration = 0.5f;
+    public float airSpinUpwardForce = 10f;
+    public int allowedAirSpins = 1;
 }

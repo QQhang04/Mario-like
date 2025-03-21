@@ -59,6 +59,10 @@ public abstract class Entity : MonoBehaviour
         var bottom = position + Vector3.down * offset;
         return Physics.OverlapCapsuleNonAlloc(top, bottom, overlapsRadius, result);
     }
+    
+    public virtual void ApplyDamage(int amount, Vector3 origin)
+    {
+    }
 }
 
 public abstract class Entity<T> : Entity where T : Entity<T>
@@ -262,9 +266,5 @@ public abstract class Entity<T> : Entity where T : Entity<T>
             var rotation = Quaternion.LookRotation(direction, Vector3.up);
             transform.rotation = rotation;
         }
-    }
-    
-    public virtual void ApplyDamage(int amount, Vector3 origin)
-    {
     }
 }

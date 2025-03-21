@@ -18,6 +18,7 @@ public class IdlePlayerState : PlayerState
         player.Gravity();
         player.Fall();
         player.Friction();
+        player.Spin();
         
         var inputDirection = player.inputs.GetMovementDirection();
 
