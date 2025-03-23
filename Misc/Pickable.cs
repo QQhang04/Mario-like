@@ -96,6 +96,7 @@ public class Pickable : MonoBehaviour, IEntityContact
         transform.localPosition = m_initialPosition;
         transform.localRotation = m_initialRotation;
         m_rb.isKinematic = m_collider.isTrigger = beingHold = false;
+        onRespawn?.Invoke();
     }
 
     protected void OnTriggerEnter(Collider other)

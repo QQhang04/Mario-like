@@ -4,6 +4,16 @@ using UnityEngine;
 
 public abstract class Entity : MonoBehaviour
 {
+    protected readonly float m_groundOffset = 0.1f;
+    protected readonly float m_penetrationOffset = -0.1f;
+    protected readonly float m_slopingGroundAngle = 20f;
+    public RaycastHit groundHit;
+    public float lastGroundTime { get; protected set; }
+    public float groundAngle { get; protected set; }
+    public Vector3 groundNormal { get; protected set; }
+    public Vector3 localSlopeDirection { get; protected set; }
+    
+    
     public EntityEvents entityEvents;
     public bool isGrounded { get; protected set; } = true;
     public Vector3 velocity { get; set; }
@@ -28,9 +38,6 @@ public abstract class Entity : MonoBehaviour
         set {velocity = new Vector3(velocity.x, value.y, velocity.z);}
     }
 
-    protected readonly float m_groundOffset = .1f;
-    public RaycastHit groundHit;
-    public float lastGroundTime { get; protected set; }
     public float height => controller.height;
     public float radius => controller.radius;
     public Vector3 center => controller.center;
@@ -85,19 +92,19 @@ public abstract class Entity : MonoBehaviour
 
 public abstract class Entity<T> : Entity where T : Entity<T>
 {
-    public EntityStateManager<T> states {get; private set;}
+    public EntityStateManager<T> states { get; private set; }
     protected virtual void HandleState() => states.Step();
     protected virtual void InitializeStateManager() => states = GetComponent<EntityStateManager<T>>();
     protected virtual void InitializeController()
     {
         controller = GetComponent<CharacterController>();
-        
+
         if (!controller)
             controller = gameObject.AddComponent<CharacterController>();
 
         controller.skinWidth = .005f;
         controller.minMoveDistance = 0;
-        
+
         originalHeight = controller.height;
     }
 
@@ -110,7 +117,7 @@ public abstract class Entity<T> : Entity where T : Entity<T>
         m_collider.isTrigger = true;
         m_collider.enabled = false;
     }
-    
+
     protected virtual void Awake()
     {
         InitializeController();
@@ -126,7 +133,13 @@ public abstract class Entity<T> : Entity where T : Entity<T>
             HandleController();
             HandleGround();
             HandleContacts();
+            OnUpdate();
         }
+    }
+
+    protected virtual void OnUpdate()
+    {
+        
     }
 
     protected virtual void HandleGround()
@@ -144,6 +157,18 @@ public abstract class Entity<T> : Entity where T : Entity<T>
                 {
                     HandleHighLedge(hit);
                 }
+            }
+            else if (IsPointUnderStep(hit.point))
+            {
+                UpdateGround(hit);
+                if (Vector3.Angle(hit.normal, Vector3.up) >= controller.slopeLimit)
+                {
+                    // HandleSlopeLimit(hit);
+                }
+            }
+            else
+            {
+                HandleHighLedge(hit);
             }
         }
         else
@@ -181,6 +206,18 @@ public abstract class Entity<T> : Entity where T : Entity<T>
     protected virtual void HandleHighLedge(RaycastHit hit)
     {
         // TODO
+    }
+    
+    protected virtual void UpdateGround(RaycastHit hit)
+    {
+        if (isGrounded)
+        {
+            groundHit = hit;
+            groundNormal = groundHit.normal;
+            groundAngle = Vector3.Angle(Vector3.up, groundHit.normal);
+            localSlopeDirection = new Vector3(groundNormal.x, 0, groundNormal.z).normalized;
+            transform.parent = hit.collider.CompareTag(GameTag.Platform) ? hit.transform : null;
+        }
     }
 
     protected virtual bool EvaluateLanding(RaycastHit hit)
@@ -227,6 +264,14 @@ public abstract class Entity<T> : Entity where T : Entity<T>
         }
         
         transform.position += velocity * Time.deltaTime;
+    }
+    
+    public virtual void Gravity(float gravity)
+    {
+        if (!isGrounded)
+        {
+            verticalVelocity += Vector3.down * (gravity * gravityMultiplier * Time.deltaTime);
+        }
     }
 
     public virtual void Accelerate(Vector3 direction, float turningDrag, float acceleration, float topSpeed)

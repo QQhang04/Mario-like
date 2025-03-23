@@ -16,6 +16,7 @@ public class PlayerInputManager : MonoBehaviour
    protected InputAction m_pause;
    protected InputAction m_spin;
    protected InputAction m_pickAndDrop;
+   protected InputAction m_stomp;
    
    protected Camera m_camera;
    protected float? m_lastJumpTime;
@@ -56,6 +57,7 @@ public class PlayerInputManager : MonoBehaviour
       m_pause = actions["Pause"];
       m_spin = actions["Spin"];
       m_pickAndDrop = actions["PickAndDrop"];
+      m_stomp = actions["Stomp"];
    }
 
    public virtual bool GetRun() => m_run.IsPressed();
@@ -132,4 +134,5 @@ public class PlayerInputManager : MonoBehaviour
    public virtual bool GetSpinDown() => m_spin.WasPressedThisFrame();
    
    public virtual bool GetPickAndDropDown() => m_pickAndDrop.WasPressedThisFrame();
+   public virtual bool GetStompDown() => m_stomp.WasPressedThisFrame();
 }

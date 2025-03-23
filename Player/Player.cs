@@ -2,6 +2,12 @@ using UnityEngine;
 
 public class Player : Entity<Player>
 {
+    protected override void Update()
+    {
+        base.Update();
+        Debug.Log(isGrounded);
+    }
+
     public PlayerEvents playerEvents;
     public PlayerInputManager inputs {get; protected set;}
     public PlayerStatsManager stats {get; protected set;}
@@ -42,11 +48,6 @@ public class Player : Entity<Player>
         InitialTag();
         InitializeHealth();
         InitializeRespawn();
-    }
-
-    protected override void Update()
-    {
-        base.Update();
     }
 
     protected override void EnterGround(RaycastHit hit)
@@ -132,8 +133,9 @@ public class Player : Entity<Player>
     {
         var canMultiJump = (jumpCounter > 0) && (jumpCounter < stats.current.multiJumps);
         var canCoyoteJump = (jumpCounter == 0) && (Time.time < lastGroundTime + stats.current.coyoteJumpThreshold);
+        var holdJump = !holding;
 
-        if (isGrounded || canMultiJump || canCoyoteJump)
+        if ((isGrounded || canMultiJump || canCoyoteJump) && holdJump)
         {
             if (inputs.GetJumpDown())
             {
@@ -153,6 +155,11 @@ public class Player : Entity<Player>
         verticalVelocity = Vector3.up * jumpHeight;
         states.Change<FallPlayerState>();
         playerEvents.OnJump.Invoke();
+    }
+    
+    protected override bool EvaluateLanding(RaycastHit hit)
+    {
+        return base.EvaluateLanding(hit) && !hit.collider.CompareTag(GameTag.Spring);
     }
 
     public virtual void ResetAirSpins() => airSpinCounter = 0;
@@ -261,6 +268,14 @@ public class Player : Entity<Player>
             pickable = null;
             holding = false;
             playerEvents.OnThrow?.Invoke();
+        }
+    }
+    
+    public virtual void StompAttack()
+    {
+        if (!isGrounded && !holding && stats.current.canStompAttack && inputs.GetStompDown())
+        {
+            states.Change<StompPlayerState>();
         }
     }
 

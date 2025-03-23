@@ -7,6 +7,6 @@ public class ClassTypeName : PropertyAttribute
 
     public ClassTypeName(Type type)
     {
-        
+        this.type = type;
     }
 }
