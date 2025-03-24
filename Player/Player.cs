@@ -2,12 +2,6 @@ using UnityEngine;
 
 public class Player : Entity<Player>
 {
-    protected override void Update()
-    {
-        base.Update();
-        Debug.Log(isGrounded);
-    }
-
     public PlayerEvents playerEvents;
     public PlayerInputManager inputs {get; protected set;}
     public PlayerStatsManager stats {get; protected set;}

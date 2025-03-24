@@ -7,37 +7,42 @@ using UnityEngine.Events;
 [AddComponentMenu("PLAYER TWO/Platformer Project/Misc/Panel")]
 public class Panel : MonoBehaviour, IEntityContact
 {
+	public enum PanelMode
+	{
+		PressToActivate,
+		ToggleOnPress
+	}
+	
+	public PanelMode panelMode = PanelMode.PressToActivate;
+	private IPanelUpdateStrategy updateStrategy;
+
+	private void InitializeStrategy() => updateStrategy = PanelUpdateStrategyFactory.CreateStrategy(panelMode);
+
 	public bool autoToggle;
 	public bool requireStomp;
 	public bool requirePlayer;
 	public AudioClip activateClip;
 	public AudioClip deactivateClip;
 
-	/// <summary>
-	/// Called when the Panel is activated.
-	/// </summary>
+
 	public UnityEvent OnActivate;
-	/// <summary>
-	/// Called when the Panel is deactivated.
-	/// </summary>
 	public UnityEvent OnDeactivate;
 
 	protected Collider m_collider;
 	protected Collider m_entityActivator;
 	protected Collider m_otherActivator;
+	
+	public Collider Collider => m_collider;
+	public Collider EntityActivator { get => m_entityActivator; set => m_entityActivator = value; }
+	public Collider OtherActivator { get => m_otherActivator; set => m_otherActivator = value; }
 
 	protected AudioSource m_audio;
-
-	/// <summary>
-	/// Return true if the Panel is activated.
-	/// </summary>
+	
 	public bool activated { get; protected set; }
-
-	/// <summary>
-	/// Activate this Panel.
-	/// </summary>
+	
 	public virtual void Activate()
 	{
+		Debug.Log("ACtivate");
 		if (!activated)
 		{
 			if (activateClip)
@@ -49,12 +54,10 @@ public class Panel : MonoBehaviour, IEntityContact
 			OnActivate?.Invoke();
 		}
 	}
-
-	/// <summary>
-	/// Deactivates this Panel.
-	/// </summary>
+	
 	public virtual void Deactivate()
 	{
+		Debug.Log("DeActivate");
 		if (activated)
 		{
 			if (deactivateClip)
@@ -72,35 +75,13 @@ public class Panel : MonoBehaviour, IEntityContact
 		gameObject.tag = GameTag.Panel;
 		m_collider = GetComponent<Collider>();
 		m_audio = GetComponent<AudioSource>();
+
+		InitializeStrategy();
 	}
 
 	protected virtual void Update()
-	{
-		if (m_entityActivator || m_otherActivator)
-		{
-			var center = m_collider.bounds.center;
-			var contactOffset = Physics.defaultContactOffset + 0.1f;
-			var size = m_collider.bounds.size + Vector3.up * contactOffset;
-			var bounds = new Bounds(center, size);
-
-			var intersectsEntity = m_entityActivator && bounds.Intersects(m_entityActivator.bounds);
-			var intersectsOther = m_otherActivator && bounds.Intersects(m_otherActivator.bounds);
-
-			if (intersectsEntity || intersectsOther)
-			{
-				Activate();
-			}
-			else
-			{
-				m_entityActivator = intersectsEntity ? m_entityActivator : null;
-				m_otherActivator = intersectsOther ? m_otherActivator : null;
-
-				if (autoToggle)
-				{
-					Deactivate();
-				}
-			}
-		}
+	{	
+		updateStrategy.UpdatePanel(this);
 	}
 
 	public void OnEntityContact(Entity entity)
