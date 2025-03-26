@@ -8,7 +8,12 @@ public class Player : Entity<Player>
     
     protected Vector3 m_respawnPosition;
     protected Quaternion m_respawnRotation;
+    
+    protected Vector3 m_skinInitialPosition;
+    protected Quaternion m_skinInitialRotation;
+    
     public Transform pickableSlot;
+    public Transform skin;
     
     public int jumpCounter { get; protected set; }
     public bool holding { get; protected set; }
@@ -33,11 +38,51 @@ public class Player : Entity<Player>
         m_respawnPosition = transform.position;
         m_respawnRotation = transform.rotation;
     }
+    
+    protected virtual void InitializeSkin()
+    {
+        if (skin)
+        {
+            m_skinInitialPosition = skin.localPosition;
+            m_skinInitialRotation = skin.localRotation;
+        }
+    }
+    
+    public virtual void SetSkinParent(Transform parent)
+    {
+        if (skin)
+        {
+            skin.parent = parent;
+        }
+    }
+    public virtual void ResetJumps() => jumpCounter = 0;
+    
+    public virtual void ResetSkinParent()
+    {
+        if (skin)
+        {
+            skin.parent = transform;
+            skin.localPosition = m_skinInitialPosition;
+            skin.localRotation = m_skinInitialRotation;
+        }
+    }
 
     public virtual void SetRespawn(Vector3 pos, Quaternion rot)
     {
         m_respawnPosition = pos;
         m_respawnRotation = rot;
+    }
+    
+    public virtual bool FitsIntoPosition(Vector3 position)
+    {
+        var bounds = controller.bounds;
+        var radius = controller.radius - controller.skinWidth;
+        var offset = height * 0.5f - radius;
+        var top = position + Vector3.up * offset;
+        var bottom = position - Vector3.up * offset;
+
+        return !Physics.CheckCapsule(top, bottom, radius,
+            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
     }
 
     protected override void Awake()
@@ -161,6 +206,111 @@ public class Player : Entity<Player>
     {
         return base.EvaluateLanding(hit) && !hit.collider.CompareTag(GameTag.Spring);
     }
+
+    public virtual void LedgeGrab()
+    {
+        if (stats.current.canLedgeHang && velocity.y < 0 && !holding &&
+            states.ContainsStateOfType(typeof(LedgeHangingPlayerState)) &&
+            DetectingLedge(stats.current.ledgeMaxForwardDistance, stats.current.ledgeMaxDownwardDistance, out var hit))
+        {
+            Debug.Log("there is a ledge");
+            if (!(hit.collider is CapsuleCollider) && !(hit.collider is SphereCollider))
+            {
+                var ledgeDistance = radius + stats.current.ledgeMaxForwardDistance;
+                var lateralOffset = transform.forward * ledgeDistance;
+                var verticalOffset = Vector3.down * (height * 0.5f) - center;
+                velocity = Vector3.zero;
+                transform.parent = hit.collider.CompareTag(GameTag.Platform) ? hit.transform : null;
+                transform.position = hit.point - lateralOffset + verticalOffset;
+                states.Change<LedgeHangingPlayerState>();
+                playerEvents.OnLedgeGrabbed?.Invoke();
+            }
+        }
+    }
+
+    protected virtual bool DetectingLedge(float forwardDistance, float downwardDistance, out RaycastHit ledgeHit)
+    {
+        var contactOffset = Physics.defaultContactOffset + positionDelta;
+        var ledgeMaxDistance = radius + forwardDistance;
+        var ledgeHeightOffset = height * 0.5f + contactOffset;
+        var upwardOffset = transform.up * ledgeHeightOffset;
+        var forwardOffset = transform.forward * ledgeMaxDistance;
+
+        if (Physics.Raycast(position + upwardOffset, transform.forward, ledgeMaxDistance,
+                Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore) ||
+            Physics.Raycast(position + forwardOffset * .01f, transform.up, ledgeHeightOffset,
+                Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+        {
+            ledgeHit = new RaycastHit();
+            return false;
+        }
+
+        var origin = position + upwardOffset + forwardOffset;
+        var distance = downwardDistance + contactOffset;
+			
+        return Physics.Raycast(origin, Vector3.down, out ledgeHit, distance,
+            stats.current.ledgeHangingLayers, QueryTriggerInteraction.Ignore);
+    }
+    
+    
+    
+    private void OnDrawGizmos()
+    {
+        // DrawLedgeDetectionGizmos();
+        DrawLedgeHangingGizmos();
+    }
+
+    private void DrawLedgeDetectionGizmos()
+    {
+        if (stats == null) return;
+
+        var contactOffset = Physics.defaultContactOffset + positionDelta;
+        var ledgeMaxDistance = radius + stats.current.ledgeMaxForwardDistance;
+        var ledgeHeightOffset = height * 0.5f + contactOffset;
+        var upwardOffset = transform.up * ledgeHeightOffset;
+        var forwardOffset = transform.forward * ledgeMaxDistance;
+
+        Vector3 origin1 = transform.position + upwardOffset;
+        Vector3 origin2 = transform.position + forwardOffset * .01f;
+        Vector3 rayOrigin = transform.position + upwardOffset + forwardOffset;
+        Vector3 rayDirection = Vector3.down;
+        float rayDistance = stats.current.ledgeMaxDownwardDistance + contactOffset;
+
+        // 设置 Gizmos 颜色
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(origin1, origin1 + transform.forward * ledgeMaxDistance); // 前向射线
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(origin2, origin2 + transform.up * ledgeHeightOffset); // 向上检测
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(rayOrigin, rayOrigin + rayDirection * rayDistance); // 向下检测
+    }
+   
+    private void DrawLedgeHangingGizmos()
+    {
+        if (stats == null) return;
+
+        var ledgeTopMaxDistance = radius + stats.current.ledgeMaxForwardDistance;
+        var ledgeTopHeightOffset = height * 0.5f + stats.current.ledgeMaxDownwardDistance;
+        var topOrigin = transform.position + Vector3.up * ledgeTopHeightOffset + transform.forward * ledgeTopMaxDistance;
+        var sideOrigin = transform.position + Vector3.up * height * 0.5f + Vector3.down * stats.current.ledgeSideHeightOffset;
+        var rayDistance = radius + stats.current.ledgeSideMaxDistance;
+        var rayRadius = stats.current.ledgeSideCollisionRadius;
+
+        // Draw SphereCast for side detection
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(sideOrigin, rayRadius);
+        Gizmos.DrawLine(sideOrigin, sideOrigin + transform.forward * rayDistance);
+
+        // Draw Raycast for top detection
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(topOrigin, topOrigin + Vector3.down * height);
+
+        // Draw Raycast for ledge side detection
+        Gizmos.color = Color.green;
+        Vector3 ledgeSideOrigin = sideOrigin + transform.right * radius;
+        Gizmos.DrawLine(ledgeSideOrigin, ledgeSideOrigin + (transform.forward * rayDistance));
+    }
+    
 
     public virtual void ResetAirSpins() => airSpinCounter = 0;
     public virtual void Spin()

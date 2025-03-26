@@ -95,4 +95,6 @@ public abstract class EntityStateManager<T> : EntityStateManager where T : Entit
         
         return current.GetType() == type;
     }
+    
+    public virtual bool ContainsStateOfType(Type type) => m_states.ContainsKey(type);
 }

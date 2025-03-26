@@ -22,6 +22,23 @@ public class PlayerStats : EntityStats<PlayerStats>
     public float runningAcceleration = 16f;
     public float runningTopSpeed = 7.5f;
     public float runningTurningDrag = 14f;
+    
+    [Header("Ledge Hanging Stats")]
+    public bool canLedgeHang = true;
+    public LayerMask ledgeHangingLayers;
+    public Vector3 ledgeHangingSkinOffset;
+    public float ledgeMaxForwardDistance = 0.25f;
+    public float ledgeMaxDownwardDistance = 0.25f;
+    public float ledgeSideMaxDistance = 0.5f;
+    public float ledgeSideHeightOffset = 0.15f;
+    public float ledgeSideCollisionRadius = 0.25f;
+    public float ledgeMovementSpeed = 1.5f;
+
+    [Header("Ledge Climbing Stats")]
+    public bool canClimbLedges = true;
+    public LayerMask ledgeClimbingLayers;
+    public Vector3 ledgeClimbingSkinOffset;
+    public float ledgeClimbingDuration = 1f;
 
     [Header("Backflip Stats")] 
     public bool canBackflip = true;

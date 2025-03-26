@@ -7,6 +7,10 @@ public abstract class Entity : MonoBehaviour
     protected readonly float m_groundOffset = 0.1f;
     protected readonly float m_penetrationOffset = -0.1f;
     protected readonly float m_slopingGroundAngle = 20f;
+    
+    public float positionDelta { get; protected set; }
+    public Vector3 lastPosition { get; set; }
+    
     public RaycastHit groundHit;
     public float lastGroundTime { get; protected set; }
     public float groundAngle { get; protected set; }
@@ -137,11 +141,25 @@ public abstract class Entity<T> : Entity where T : Entity<T>
         }
     }
 
+    protected void LateUpdate()
+    {
+        if (controller.enabled)
+        {
+            HandlePosition();
+        }
+    }
+
     protected virtual void OnUpdate()
     {
         
     }
 
+    protected virtual void HandlePosition()
+    {
+        positionDelta = (position - lastPosition).magnitude;
+        lastPosition = position;
+    }
+    
     protected virtual void HandleGround()
     {
         var distance = (height * .5f) + m_groundOffset;
