@@ -34,6 +34,12 @@ public class Player : Entity<Player>
         m_respawnRotation = transform.rotation;
     }
 
+    public virtual void SetRespawn(Vector3 pos, Quaternion rot)
+    {
+        m_respawnPosition = pos;
+        m_respawnRotation = rot;
+    }
+
     protected override void Awake()
     {
         base.Awake();
