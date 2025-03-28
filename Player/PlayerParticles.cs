@@ -11,6 +11,7 @@ public class PlayerParticles : MonoBehaviour
     public ParticleSystem walkDust;
     public ParticleSystem landDust;
     public ParticleSystem hurtDust;
+    public ParticleSystem grindTrails;
     protected void Start()
     {
         m_player = GetComponent<Player>();
@@ -32,6 +33,7 @@ public class PlayerParticles : MonoBehaviour
     protected virtual void Update()
     {
         HandleWalkParticle();
+        HandleRailParticle();
     }
     
     public virtual void Play(ParticleSystem particle)
@@ -59,6 +61,14 @@ public class PlayerParticles : MonoBehaviour
         {
             Stop(walkDust);
         }
+    }
+    
+    protected virtual void HandleRailParticle()
+    {
+        if (m_player.onRails)
+            Play(grindTrails);
+        else
+            Stop(grindTrails, true);
     }
     
     protected virtual void HandleLandParticle()

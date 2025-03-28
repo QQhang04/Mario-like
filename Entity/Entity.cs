@@ -1,12 +1,16 @@
 using System;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
+using UnityEngine.Splines;
 
 public abstract class Entity : MonoBehaviour
 {
     protected readonly float m_groundOffset = 0.1f;
     protected readonly float m_penetrationOffset = -0.1f;
     protected readonly float m_slopingGroundAngle = 20f;
+    
+    public SplineContainer rails { get; protected set; }
+    public bool onRails { get; set; }
     
     public float positionDelta { get; protected set; }
     public Vector3 lastPosition { get; set; }
@@ -28,6 +32,7 @@ public abstract class Entity : MonoBehaviour
     public float gravityMultiplier { get; set; } = 1f;
     
     public CharacterController controller {get; protected set;}
+    public Rigidbody m_rigidbody { get; protected set; }
     public float originalHeight { get; protected set; }
     public Vector3 unsizePosition => position - transform.up * height * 0.5f + transform.up * originalHeight * 0.5f;
     public Vector3 lateralVelocity
@@ -121,24 +126,35 @@ public abstract class Entity<T> : Entity where T : Entity<T>
         m_collider.isTrigger = true;
         m_collider.enabled = false;
     }
+    
+    protected virtual void InitializeRigidbody()
+    {
+        m_rigidbody = gameObject.AddComponent<Rigidbody>();
+        m_rigidbody.isKinematic = true;
+    }
 
     protected virtual void Awake()
     {
         InitializeController();
         InitializeStateManager();
-        InitializeCollider();
+        
+        Application.targetFrameRate = 120;
+
     }
 
     protected virtual void Update()
     {
-        if (controller.enabled)
+        if (controller.enabled || m_collider != null)
         {
             HandleState();
             HandleController();
             HandleGround();
             HandleContacts();
+            HandleSpline();
             OnUpdate();
         }
+        
+        
     }
 
     protected void LateUpdate()
@@ -162,6 +178,9 @@ public abstract class Entity<T> : Entity where T : Entity<T>
     
     protected virtual void HandleGround()
     {
+        if (onRails)
+            return;
+        
         var distance = (height * .5f) + m_groundOffset;
         if (SphereCast(Vector3.down, distance, out var hit) && verticalVelocity.y <= 0)
         {
@@ -220,6 +239,45 @@ public abstract class Entity<T> : Entity where T : Entity<T>
             }
         }
     }
+
+    protected virtual void HandleSpline()
+    {
+        var distance = (height * 0.5f) + height * 0.5f;
+
+        if (SphereCast(-transform.up, distance, out var hit) &&
+            hit.collider.CompareTag(GameTag.InteractiveRail))
+        {
+            if (!onRails && verticalVelocity.y <= 0)
+            {
+                EnterRail(hit.collider.GetComponent<SplineContainer>());
+            }
+        }
+        else
+        {
+            ExitRail();
+        }
+    }
+    
+    protected virtual void EnterRail(SplineContainer rails)
+    {
+        if (!onRails)
+        {
+            onRails = true;
+            this.rails = rails;
+            entityEvents.OnRailsEnter.Invoke();
+        }
+    }
+
+    public virtual void ExitRail()
+    {
+        if (onRails)
+        {
+            onRails = false;
+            entityEvents.OnRailsExit.Invoke();
+        }
+    }
+    
+    
 
     protected virtual void HandleHighLedge(RaycastHit hit)
     {
@@ -346,6 +404,22 @@ public abstract class Entity<T> : Entity where T : Entity<T>
         {
             var rotation = Quaternion.LookRotation(direction, Vector3.up);
             transform.rotation = rotation;
+        }
+    }
+
+    public virtual void UseCustomCollision(bool value)
+    {
+        controller.enabled = !value;
+
+        if (value)
+        {
+            InitializeCollider();
+            InitializeRigidbody();
+        }
+        else
+        {
+            Destroy(m_collider);
+            Destroy(m_rigidbody);
         }
     }
 }

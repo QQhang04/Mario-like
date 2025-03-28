@@ -19,9 +19,13 @@ public class Player : Entity<Player>
     public bool holding { get; protected set; }
     public bool onWater { get; protected set; }
     public int airSpinCounter { get; protected set; }
+    
+    public int airDashCounter { get; protected set; }
+    public float lastDashTime { get; protected set; }
 
     public Health health { get; protected set; }
     public Pickable pickable { get; protected set; }
+
     
     public virtual void SnapToGround() => SnapToGround(stats.current.snapForce);
 
@@ -90,9 +94,18 @@ public class Player : Entity<Player>
         base.Awake();
         InitializeInputs();
         InitializeStats();
+        InitializeSkin();
         InitialTag();
         InitializeHealth();
         InitializeRespawn();
+        
+        entityEvents.OnRailsEnter.AddListener(() =>
+        {
+            ResetJumps();
+            ResetAirSpins();
+            ResetAirDash();
+            StartGrind();
+        });
     }
 
     protected override void EnterGround(RaycastHit hit)
@@ -180,7 +193,7 @@ public class Player : Entity<Player>
         var canCoyoteJump = (jumpCounter == 0) && (Time.time < lastGroundTime + stats.current.coyoteJumpThreshold);
         var holdJump = !holding;
 
-        if ((isGrounded || canMultiJump || canCoyoteJump) && holdJump)
+        if ((isGrounded || canMultiJump || canCoyoteJump || onRails) && holdJump)
         {
             if (inputs.GetJumpDown())
             {
@@ -313,6 +326,10 @@ public class Player : Entity<Player>
     
 
     public virtual void ResetAirSpins() => airSpinCounter = 0;
+    public virtual void ResetAirDash() => airDashCounter = 0;
+
+    public virtual void StartGrind() => states.Change<RailGrindPlayerState>();
+    
     public virtual void Spin()
     {
         bool canAirSpin = isGrounded || (stats.current.canAirSpin && airSpinCounter < stats.current.allowedAirSpins);
