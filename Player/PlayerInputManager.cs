@@ -19,6 +19,7 @@ public class PlayerInputManager : MonoBehaviour
    protected InputAction m_stomp;
    protected InputAction m_releaseLedge;
    protected InputAction m_dive;
+   protected InputAction m_crouch;
    
    protected Camera m_camera;
    protected float? m_lastJumpTime;
@@ -62,6 +63,12 @@ public class PlayerInputManager : MonoBehaviour
       m_stomp = actions["Stomp"];
       m_releaseLedge = actions["ReleaseLedge"];
       m_dive = actions["Dive"];
+      m_crouch = actions["Crouch"];
+   }
+   
+   public virtual void LockMovementDirection(float duration = 0.25f)
+   {
+      m_movementDirectionUnlockTime = Time.time + duration;
    }
 
    public virtual bool GetRun() => m_run.IsPressed();
@@ -141,4 +148,5 @@ public class PlayerInputManager : MonoBehaviour
    public virtual bool GetStompDown() => m_stomp.WasPressedThisFrame();
    public virtual bool GetReleaseLedgeDown() => m_releaseLedge.WasPressedThisFrame();
    public virtual bool GetDive() => m_dive.IsPressed();
+   public virtual bool GetCrouchAndCraw() => m_crouch.IsPressed();
 }

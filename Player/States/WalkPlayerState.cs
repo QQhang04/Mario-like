@@ -38,15 +38,12 @@ public class WalkPlayerState : PlayerState
         }
         else
         {
-            player.Friction();
-            if (player.lateralVelocity.sqrMagnitude <= 0)
-            {
-                player.states.Change<IdlePlayerState>();
-            }
-            else
-            {
-                player.states.Change<BrakePlayerState>();
-            }
+            player.states.Change<BrakePlayerState>();
+        }
+        
+        if (player.inputs.GetCrouchAndCraw())
+        {
+            player.states.Change<CrouchPlayerState>();
         }
     }
     

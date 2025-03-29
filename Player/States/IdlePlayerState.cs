@@ -28,6 +28,10 @@ public class IdlePlayerState : PlayerState
         {
             player.states.Change<WalkPlayerState>();
         }
+        else if (player.inputs.GetCrouchAndCraw())
+        {
+            player.states.Change<CrouchPlayerState>();
+        }
     }
     
     public override void OnContact(Player player, Collider other)

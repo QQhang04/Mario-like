@@ -41,14 +41,26 @@ public class PlayerStats : EntityStats<PlayerStats>
     public LayerMask ledgeClimbingLayers;
     public Vector3 ledgeClimbingSkinOffset;
     public float ledgeClimbingDuration = 1f;
+    
+    [Header("Crouch Stats")]
+    public float crouchHeight = 1f;
+    public float crouchFriction = 10f;
+    
+    [Header("Crawling Stats")]
+    public float crawlingAcceleration = 8f;
+    public float crawlingFriction = 32f;
+    public float crawlingTopSpeed = 2.5f;
+    public float crawlingTurningSpeed = 3f;
 
-    [Header("Backflip Stats")] 
+    [Header("Backflip Stats")]
     public bool canBackflip = true;
+    public bool backflipLockMovement = true;
+    public float backflipAirAcceleration = 12f;
+    public float backflipTurningDrag = 2.5f;
+    public float backflipTopSpeed = 7.5f;
     public float backflipJumpHeight = 23f;
     public float backflipGravity = 35f;
-    public float backflipTurningDrag = 2.5f;
-    public float backflipAirAcceleration = 12f;
-    public float backflipTopSpeed = 7.5f;
+    public float backflipBackwardForce = 4f;
     public float backflipBackwardTurnForce = 8f;
 
     [Header("Jump Stats")]

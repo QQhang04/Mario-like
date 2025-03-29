@@ -29,6 +29,7 @@ public class Player : Entity<Player>
     public Pickable pickable { get; protected set; }
 
     
+    public virtual bool canStandUp => !SphereCast(Vector3.up, originalHeight);
     public virtual void SnapToGround() => SnapToGround(stats.current.snapForce);
 
     public virtual void FaceDirectionSmooth(Vector3 direction) =>
@@ -62,6 +63,7 @@ public class Player : Entity<Player>
         }
     }
     public virtual void ResetJumps() => jumpCounter = 0;
+    public virtual void SetJumps(int count) => jumpCounter = count;
     
     public virtual void ResetSkinParent()
     {
@@ -107,6 +109,13 @@ public class Player : Entity<Player>
             ResetAirSpins();
             ResetAirDash();
             StartGrind();
+        });
+        
+        entityEvents.OnGroundEnter.AddListener(() =>
+        {
+            ResetJumps();
+            ResetAirSpins();
+            ResetAirDash();
         });
     }
 
@@ -488,6 +497,8 @@ public class Player : Entity<Player>
 
     public virtual void WaterAcceleration(Vector3 direction) => Accelerate(direction, stats.current.waterTurningDrag, stats.current.swimAcceleration, stats.current.swimTopSpeed);
     public virtual void WaterFaceDirection(Vector3 direction) => FaceDirection(direction, stats.current.waterRotationSpeed);
+    public virtual void CrawlingAccelerate(Vector3 direction) =>
+        Accelerate(direction, stats.current.crawlingTurningSpeed, stats.current.crawlingAcceleration, stats.current.crawlingTopSpeed); 
 
     public virtual void Respawn()
     {

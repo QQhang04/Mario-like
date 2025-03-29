@@ -57,6 +57,19 @@ public abstract class Entity : MonoBehaviour
     protected CapsuleCollider m_collider;
     protected BoxCollider m_penetratorCollider;
 
+    public virtual void ResizeCollider(float height)
+    {
+        var delta = height - this.height;
+        controller.height = height;
+        controller.center += Vector3.up * (delta * 0.5f);
+    }
+    
+    public virtual bool SphereCast(Vector3 direction, float distance, int layer = Physics.DefaultRaycastLayers,
+        QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.Ignore)
+    {
+        return SphereCast(direction, distance, out _, layer, queryTriggerInteraction);
+    }
+    
     public virtual bool SphereCast(Vector3 direction, float distance, out RaycastHit hit,
         int layer = Physics.DefaultRaycastLayers,
         QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.Ignore)
@@ -156,7 +169,8 @@ public abstract class Entity<T> : Entity where T : Entity<T>
 
     protected virtual void Update()
     {
-        if (controller.enabled || m_collider != null)
+        
+        if (controller.enabled || onRails)
         {
             HandleState();
             HandleController();
@@ -165,7 +179,6 @@ public abstract class Entity<T> : Entity where T : Entity<T>
             HandleSpline();
             OnUpdate();
         }
-        
         
     }
 

@@ -36,15 +36,10 @@ public class PortalWithMomentum : MonoBehaviour
             playerVelocity = player.velocity;
             playerVelocity.y = player.isGrounded ? 0f : player.velocity.y;
             
-            Debug.Log(playerVelocity + " " + transform.forward + " " + Vector3.Dot(playerVelocity,transform.forward));
+            // Debug.Log(playerVelocity + " " + transform.forward + " " + Vector3.Dot(playerVelocity,transform.forward));
             if (Vector3.Dot(playerVelocity,transform.forward) < -10f)
             {
-                Debug.Log("OK");
                 StartCoroutine(Teleport());
-            }
-            else
-            {
-                Debug.Log("FAIL");
             }
         }
     }
