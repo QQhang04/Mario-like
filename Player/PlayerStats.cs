@@ -82,6 +82,18 @@ public class PlayerStats : EntityStats<PlayerStats>
     public float pickDistance = 0.5f;
     public float throwVelocityMultiplier = 1.5f;
     
+    [Header("Swimming Stats")]
+    public float waterConversion = 0.35f;
+    public float waterRotationSpeed = 360f;
+    public float waterUpwardsForce = 8f;
+    public float waterJumpHeight = 15f;
+    public float waterTurningDrag = 2.5f;
+    public float swimAcceleration = 4f;
+    public float swimDeceleration = 3f;
+    public float swimTopSpeed = 4f;
+    public float swimDiveForce = 15f;
+    public float buoyancyFactor = .5f;
+    
     [Header("Rail Grinding Stats")]
     public bool useCustomCollision = true;
     public float grindRadiusOffset = 0.26f;

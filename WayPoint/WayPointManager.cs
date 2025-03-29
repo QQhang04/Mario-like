@@ -32,11 +32,11 @@ public class WaypointManager : MonoBehaviour
             return m_current;
         }
 
-        protected set { m_current = value; }
+        private set { m_current = value; }
     }
 
 
-    public int index => waypoints.IndexOf(current);
+    private int index => waypoints.IndexOf(current);
     
     public virtual void Next()
     {

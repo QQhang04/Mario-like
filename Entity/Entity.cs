@@ -53,7 +53,9 @@ public abstract class Entity : MonoBehaviour
     public Vector3 position => transform.position + center;
     
     protected Collider[] m_contactBuffer = new Collider[10];
+    protected Collider[] m_penetrationBuffer = new Collider[32];
     protected CapsuleCollider m_collider;
+    protected BoxCollider m_penetratorCollider;
 
     public virtual bool SphereCast(Vector3 direction, float distance, out RaycastHit hit,
         int layer = Physics.DefaultRaycastLayers,
@@ -123,8 +125,17 @@ public abstract class Entity<T> : Entity where T : Entity<T>
         m_collider.height = controller.height;
         m_collider.radius = controller.radius;
         m_collider.center = controller.center;
-        m_collider.isTrigger = true;
-        m_collider.enabled = false;
+        m_collider.isTrigger = false;
+        m_collider.enabled = true;
+    }
+    
+    protected virtual void InitializePenetratorCollider()
+    {
+        var xzSize = radius * 2f - controller.skinWidth;
+        m_penetratorCollider = gameObject.AddComponent<BoxCollider>();
+        m_penetratorCollider.size = new Vector3(xzSize, height - controller.stepOffset, xzSize);
+        m_penetratorCollider.center = center + Vector3.up * controller.stepOffset * 0.5f;
+        m_penetratorCollider.isTrigger = true;
     }
     
     protected virtual void InitializeRigidbody()
@@ -137,6 +148,7 @@ public abstract class Entity<T> : Entity where T : Entity<T>
     {
         InitializeController();
         InitializeStateManager();
+        InitializePenetratorCollider();
         
         Application.targetFrameRate = 120;
 
@@ -162,6 +174,7 @@ public abstract class Entity<T> : Entity where T : Entity<T>
         if (controller.enabled)
         {
             HandlePosition();
+            HandlePenetration();
         }
     }
 
@@ -239,6 +252,31 @@ public abstract class Entity<T> : Entity where T : Entity<T>
             }
         }
     }
+    
+    protected virtual void HandlePenetration()
+    {
+        var xzSize = m_penetratorCollider.size.x * 0.5f;
+        var ySize = (height - controller.stepOffset * 0.5f) * 0.5f;
+        var origin = position + Vector3.up * controller.stepOffset * 0.5f;
+        var halfExtents = new Vector3(xzSize, ySize, xzSize);
+        var overlaps = Physics.OverlapBoxNonAlloc(origin, halfExtents, m_penetrationBuffer,
+            Quaternion.identity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+
+        for (int i = 0; i < overlaps; i++)
+        {
+            if (!m_penetrationBuffer[i].isTrigger && m_penetrationBuffer[i].transform != transform &&
+                (lateralVelocity.sqrMagnitude == 0 || m_penetrationBuffer[i].CompareTag(GameTag.Platform)))
+            {
+                if (Physics.ComputePenetration(m_penetratorCollider, position, Quaternion.identity,
+                        m_penetrationBuffer[i], m_penetrationBuffer[i].transform.position,
+                        m_penetrationBuffer[i].transform.rotation, out var direction, out float distance))
+                {
+                    var pushDirection = new Vector3(direction.x, 0, direction.z).normalized;
+                    transform.position += pushDirection * distance;
+                }
+            }
+        }
+    }
 
     protected virtual void HandleSpline()
     {
@@ -292,7 +330,10 @@ public abstract class Entity<T> : Entity where T : Entity<T>
             groundNormal = groundHit.normal;
             groundAngle = Vector3.Angle(Vector3.up, groundHit.normal);
             localSlopeDirection = new Vector3(groundNormal.x, 0, groundNormal.z).normalized;
-            transform.parent = hit.collider.CompareTag(GameTag.Platform) ? hit.transform : null;
+            if (hit.collider.CompareTag(GameTag.Platform))
+            {
+                transform.parent = hit.collider.CompareTag(GameTag.Platform) ? hit.transform : null;
+            }
         }
     }
 
