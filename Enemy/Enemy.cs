@@ -54,6 +54,9 @@ public class Enemy : Entity<Enemy>
                     if (m_sightOverlaps[i].TryGetComponent<Player>(out var player))
                     {
                         this.player = player;
+                        if (states.ContainsStateOfType(typeof(FollowEnemyState)))
+                            states.Change<FollowEnemyState>();
+                        
                         enemyEvents.OnPlayerSpotted?.Invoke();
                         return;
                     }
@@ -66,6 +69,8 @@ public class Enemy : Entity<Enemy>
             if (player.health.current == 0 || distance > stats.current.viewRange)
             {
                 player = null;
+                if (states.ContainsStateOfType(typeof(WaypointEnemyState)))
+                    states.Change<WaypointEnemyState>();
                 enemyEvents.OnPlayerScaped?.Invoke();
             }
         }

@@ -43,6 +43,10 @@ public class WalkPlayerState : PlayerState
             {
                 player.states.Change<IdlePlayerState>();
             }
+            else
+            {
+                player.states.Change<BrakePlayerState>();
+            }
         }
     }
     

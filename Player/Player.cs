@@ -267,7 +267,6 @@ public class Player : Entity<Player>
             states.ContainsStateOfType(typeof(LedgeHangingPlayerState)) &&
             DetectingLedge(stats.current.ledgeMaxForwardDistance, stats.current.ledgeMaxDownwardDistance, out var hit))
         {
-            Debug.Log("there is a ledge");
             if (!(hit.collider is CapsuleCollider) && !(hit.collider is SphereCollider))
             {
                 var ledgeDistance = radius + stats.current.ledgeMaxForwardDistance;
