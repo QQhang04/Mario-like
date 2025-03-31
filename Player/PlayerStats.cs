@@ -10,6 +10,15 @@ public class PlayerStats : EntityStats<PlayerStats>
     public float fallGravity = 65f;
     public float pushForce = 4f;
     public float snapForce = 15f;
+    
+    [Header("Dash Stats")]
+    public bool canAirDash = true;
+    public bool canGroundDash = true;
+    public float dashForce = 25f;
+    public float dashDuration = 0.3f;
+    public float groundDashCoolDown = 0.5f;
+    public float allowedAirDashes = 1;
+    
     [Header("Motion Stats")] 
     public float brakeThreshold = -.8f;
     public float turningDrag = 28f;
@@ -64,7 +73,7 @@ public class PlayerStats : EntityStats<PlayerStats>
     public float backflipBackwardTurnForce = 8f;
 
     [Header("Jump Stats")]
-    public int multiJumps = 3;
+    public int multiJumps = 2;
     public float coyoteJumpThreshold = .15f;
     public float maxJumpHeight = 17f;
     public float minJumpHeight = 1f;

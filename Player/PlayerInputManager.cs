@@ -21,6 +21,7 @@ public class PlayerInputManager : MonoBehaviour
    protected InputAction m_dive;
    protected InputAction m_crouch;
    protected InputAction m_glide;
+   protected InputAction m_dash;
    
    protected Camera m_camera;
    protected float? m_lastJumpTime;
@@ -66,6 +67,7 @@ public class PlayerInputManager : MonoBehaviour
       m_dive = actions["Dive"];
       m_crouch = actions["Crouch"];
       m_glide = actions["Glide"];
+      m_dash = actions["Dash"];
    }
    
    public virtual void LockMovementDirection(float duration = 0.25f)
@@ -152,4 +154,5 @@ public class PlayerInputManager : MonoBehaviour
    public virtual bool GetDive() => m_dive.IsPressed();
    public virtual bool GetCrouchAndCraw() => m_crouch.IsPressed();
    public virtual bool GetGliderDown() => m_glide.IsPressed();
+   public virtual bool GetDashDown() => m_dash.WasPressedThisFrame();
 }

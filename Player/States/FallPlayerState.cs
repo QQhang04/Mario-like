@@ -14,6 +14,7 @@ public class FallPlayerState : PlayerState {
     protected override void OnStep(Player player)
     {
         player.Gravity();
+        player.Jump();
         player.SnapToGround();
         player.FaceDirectionSmooth(player.lateralVelocity);
         player.AccelerateToInputDirection();
@@ -21,6 +22,7 @@ public class FallPlayerState : PlayerState {
         player.PickAndThrow();
         player.StompAttack();
         player.LedgeGrab();
+        player.Dash();
 
         if (player.isGrounded)
         {

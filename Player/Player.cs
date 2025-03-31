@@ -250,11 +250,10 @@ public class Player : Entity<Player>
                 Jump(stats.current.maxJumpHeight);
             }
         }
-
-        if (inputs.GetJumpUp() && (jumpCounter > 0) && verticalVelocity.y > stats.current.minJumpHeight)
-        {
-            verticalVelocity = stats.current.minJumpHeight * Vector3.up;
-        }
+        // if (inputs.GetJumpUp() && (jumpCounter > 0) && verticalVelocity.y > stats.current.minJumpHeight)
+        // {
+        //     verticalVelocity = stats.current.minJumpHeight * Vector3.up;
+        // }
     }
 
     public virtual void Jump(float jumpHeight)
@@ -263,6 +262,22 @@ public class Player : Entity<Player>
         verticalVelocity = Vector3.up * jumpHeight;
         states.Change<FallPlayerState>();
         playerEvents.OnJump.Invoke();
+    }
+
+    public virtual void Dash()
+    {
+        var canAirDash = stats.current.canAirDash && !isGrounded &&
+                         airDashCounter < stats.current.allowedAirDashes;
+        var canGroundDash = stats.current.canGroundDash && isGrounded &&
+                            Time.time - lastDashTime > stats.current.groundDashCoolDown;
+        
+        if (inputs.GetDashDown() && (canAirDash || canGroundDash))
+        {
+            if (!isGrounded) airDashCounter++;
+
+            lastDashTime = Time.time;
+            states.Change<DashPlayerState>();
+        }
     }
     
     protected override bool EvaluateLanding(RaycastHit hit)
