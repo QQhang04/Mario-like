@@ -124,4 +124,10 @@ public class PlayerStats : EntityStats<PlayerStats>
     public bool applyGrindingSlopeFactor = true;
     public float grindDashCoolDown = 0.5f;
     public float grindDashForce = 25f;
+    
+    [Header("Gliding Stats")]
+    public bool canGlide = true;
+    public float glidingGravity = 10f;
+    public float glidingMaxFallSpeed = 2f;
+    public float glidingTurningDrag = 8f;
 }
