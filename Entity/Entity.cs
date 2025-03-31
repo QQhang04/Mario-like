@@ -389,7 +389,15 @@ public abstract class Entity<T> : Entity where T : Entity<T>
     {
         if (controller.enabled)
         {
-            controller.Move(velocity * Time.deltaTime);
+            if (transform.parent != null && transform.parent.CompareTag(GameTag.Platform))
+            {
+                controller.Move(velocity * Time.deltaTime + transform.parent.GetComponent<MovingPlatform>().moveDelta);
+            }
+            else
+            {
+                controller.Move(velocity * Time.deltaTime);
+            }
+            
             return;
         }
         
