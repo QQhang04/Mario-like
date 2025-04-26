@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Fire
+  m_Shader: {fileID: 4800000, guid: 92a417ce0084344d0b74c3c57a45e5a3, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 0
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _FireShape:
+        m_Texture: {fileID: 2800000, guid: 1ec55d2e3c9a048acb28e4ee0aaaafb1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Gradient:
+        m_Texture: {fileID: 2800000, guid: 5a0c3923d79f7429eac7e34bfaedf598, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NoiseTexture:
+        m_Texture: {fileID: 2800000, guid: d73a6daea5b2c4da9af132755d71d22d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ChangeAmount: 0.59
+    - _Cutoff: 0.5
+    - _EmissIntensity: 11.59
+    - _EndEmiss: 0.388
+    - _GradientEndControl: -4.33
+    - _NoiseIntensity: -0.05
+    - _Softness: 0.395
+    - __dirty: 0
+    m_Colors:
+    - _FireColor: {r: 1, g: 0.13330387, b: 0.0047169924, a: 1}
+    - _NoiseSpeed: {r: 0, g: -1, b: 0, a: 0}
+  m_BuildTextureStacks: []
