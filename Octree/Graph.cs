@@ -59,6 +59,15 @@ public class Graph
         return pathList[index].octreeNode;
     }
     
+    void ReconstructPath(Node current) {
+        while (current != null) {
+            pathList.Add(current);
+            current = current.from;
+        }
+            
+        pathList.Reverse();
+    }
+    
     const int maxIterations = 10000;
     public class NodeComparer : IComparer<Node> {
         public int Compare(Node x, Node y) {
@@ -152,15 +161,6 @@ public class Graph
             }
             
             return false;
-    }
-    
-    void ReconstructPath(Node current) {
-        while (current != null) {
-            pathList.Add(current);
-            current = current.from;
-        }
-            
-        pathList.Reverse();
     }
 
     public void DrawGraph()

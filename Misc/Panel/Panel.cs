@@ -42,7 +42,6 @@ public class Panel : MonoBehaviour, IEntityContact
 	
 	public virtual void Activate()
 	{
-		Debug.Log("ACtivate");
 		if (!activated)
 		{
 			if (activateClip)
@@ -57,7 +56,6 @@ public class Panel : MonoBehaviour, IEntityContact
 	
 	public virtual void Deactivate()
 	{
-		Debug.Log("DeActivate");
 		if (activated)
 		{
 			if (deactivateClip)

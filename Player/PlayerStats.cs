@@ -10,6 +10,7 @@ public class PlayerStats : EntityStats<PlayerStats>
     public float fallGravity = 65f;
     public float pushForce = 4f;
     public float snapForce = 15f;
+    public float slideForce = 10f;
     
     [Header("Dash Stats")]
     public bool canAirDash = true;
@@ -139,4 +140,13 @@ public class PlayerStats : EntityStats<PlayerStats>
     public float glidingGravity = 10f;
     public float glidingMaxFallSpeed = 2f;
     public float glidingTurningDrag = 8f;
+    
+    [Header("Wall Drag Stats")]
+    public bool canWallDrag = true;
+    public bool wallJumpLockMovement = true;
+    public LayerMask wallDragLayers;
+    public Vector3 wallDragSkinOffset;
+    public float wallDragGravity = 12f;
+    public float wallJumpDistance = 8f;
+    public float wallJumpHeight = 15f;
 }

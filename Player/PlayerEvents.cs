@@ -22,4 +22,6 @@ public class PlayerEvents
     public UnityEvent OnGlidingStop;
     public UnityEvent OnDashStarted;
     public UnityEvent OnDashEnded;
+    public UnityEvent OnWallDrag;
+    public UnityEvent OnWallDragEnded;
 }

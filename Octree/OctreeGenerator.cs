@@ -20,7 +20,7 @@ public class OctreeGenerator : MonoBehaviour {
             
         Gizmos.color = Color.green;
         Gizmos.DrawWireCube(ot.bounds.center, ot.bounds.size);
-        // ot.root.DrawNode();
+        ot.root.DrawNode();
         ot.graph.DrawGraph();
     }
 }

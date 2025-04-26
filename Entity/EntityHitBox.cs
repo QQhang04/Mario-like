@@ -59,6 +59,7 @@ public class EntityHitBox : MonoBehaviour
         {
             if (other.TryGetComponent(out Entity target))
             {
+                Debug.Log(target);
                 HandleEntityAttack(target);
                 HandleRebound();
                 HandlePushBack();
@@ -72,6 +73,7 @@ public class EntityHitBox : MonoBehaviour
 
     protected virtual void HandleEntityAttack(Entity other)
     {
+        Debug.Log("apply damage");
         other.ApplyDamage(damage, transform.position);
     }
     

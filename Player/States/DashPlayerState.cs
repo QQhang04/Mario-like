@@ -32,5 +32,9 @@ public class DashPlayerState : PlayerState
     public override void OnContact(Player player, Collider other)
     {
         player.PushRigidbody(other);
+        if (!player.isGrounded)
+        {
+            player.WallDrag(other);
+        }
     }
 }

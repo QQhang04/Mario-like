@@ -1,9 +1,9 @@
 using UnityEngine;
 
-public class Portal : MonoBehaviour
+public class PortalRegular : MonoBehaviour
 {
     public bool useFlash = true;
-    public Portal exit;
+    public PortalRegular exit;
     public float exitOffset = 1f;
     public AudioClip teleportClip;
 

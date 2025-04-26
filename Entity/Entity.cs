@@ -226,11 +226,13 @@ public abstract class Entity<T> : Entity where T : Entity<T>
                 UpdateGround(hit);
                 if (Vector3.Angle(hit.normal, Vector3.up) >= controller.slopeLimit)
                 {
-                    // HandleSlopeLimit(hit);
+                    Debug.Log(Vector3.Angle(hit.normal, Vector3.up));
+                    HandleSlopeLimit(hit);
                 }
             }
             else
             {
+                Debug.Log("case 3 high ledge");
                 HandleHighLedge(hit);
             }
         }
@@ -270,7 +272,7 @@ public abstract class Entity<T> : Entity where T : Entity<T>
     {
         var xzSize = m_penetratorCollider.size.x * 0.5f;
         var ySize = (height - controller.stepOffset * 0.5f) * 0.5f;
-        var origin = position + Vector3.up * controller.stepOffset * 0.5f;
+        var origin = position + Vector3.up * (controller.stepOffset * 0.5f);
         var halfExtents = new Vector3(xzSize, ySize, xzSize);
         var overlaps = Physics.OverlapBoxNonAlloc(origin, halfExtents, m_penetrationBuffer,
             Quaternion.identity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
@@ -330,10 +332,9 @@ public abstract class Entity<T> : Entity where T : Entity<T>
     
     
 
-    protected virtual void HandleHighLedge(RaycastHit hit)
-    {
-        // TODO
-    }
+    protected virtual void HandleHighLedge(RaycastHit hit) { }
+    
+    protected virtual void HandleSlopeLimit(RaycastHit hit) { }
     
     protected virtual void UpdateGround(RaycastHit hit)
     {

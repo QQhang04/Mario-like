@@ -21,7 +21,6 @@ public class PlayerAudio : MonoBehaviour
     public AudioClip ledgeGrabbing;
     public AudioClip dash;
     public AudioClip startRailGrind;
-    public AudioClip railGrind;
     
     [Header("Other Sources")]
     public AudioSource grindAudio;

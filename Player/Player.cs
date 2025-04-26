@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class Player : Entity<Player>
 {
+    private SkinnedMeshRenderer skinnedMeshRenderer;
+    public Material skinnedDefaultMaterial;
     public PlayerEvents playerEvents;
     public PlayerInputManager inputs {get; protected set;}
     public PlayerStatsManager stats {get; protected set;}
@@ -16,6 +18,7 @@ public class Player : Entity<Player>
     public Transform pickableSlot;
     public Transform skin;
     
+    public Vector3 lastWallNormal { get; protected set; }
     public int jumpCounter { get; protected set; }
     public bool holding { get; protected set; }
     public bool onWater { get; protected set; }
@@ -48,6 +51,8 @@ public class Player : Entity<Player>
     
     protected virtual void InitializeSkin()
     {
+        skinnedMeshRenderer = gameObject.GetComponentInChildren<SkinnedMeshRenderer>();
+        skinnedDefaultMaterial = skinnedMeshRenderer.material;
         if (skin)
         {
             m_skinInitialPosition = skin.localPosition;
@@ -137,6 +142,24 @@ public class Player : Entity<Player>
                 }
             }
         }
+    }
+    
+    protected override void HandleSlopeLimit(RaycastHit hit)
+    {
+        if (onWater) return;
+
+        var slopeDirection = Vector3.Cross(hit.normal, Vector3.Cross(hit.normal, Vector3.up));
+        slopeDirection = slopeDirection.normalized;
+        controller.Move(slopeDirection * (stats.current.slideForce * Time.deltaTime));
+    }
+
+    protected override void HandleHighLedge(RaycastHit hit)
+    {
+        if (onWater) return;
+
+        var edgeNormal = hit.point - position;
+        var edgePushDirection = Vector3.Cross(edgeNormal, Vector3.Cross(edgeNormal, Vector3.up));
+        controller.Move(edgePushDirection * (stats.current.gravity * Time.deltaTime));
     }
 
     protected virtual void EnterWater(Collider other)
@@ -262,6 +285,14 @@ public class Player : Entity<Player>
         verticalVelocity = Vector3.up * jumpHeight;
         states.Change<FallPlayerState>();
         playerEvents.OnJump.Invoke();
+    }
+    
+    public virtual void DirectionalJump(Vector3 direction, float height, float distance)
+    {
+        jumpCounter++;
+        verticalVelocity = Vector3.up * height;
+        lateralVelocity = direction * distance;
+        playerEvents.OnJump?.Invoke();
     }
 
     public virtual void Dash()
@@ -514,6 +545,23 @@ public class Player : Entity<Player>
     public virtual void WaterFaceDirection(Vector3 direction) => FaceDirection(direction, stats.current.waterRotationSpeed);
     public virtual void CrawlingAccelerate(Vector3 direction) =>
         Accelerate(direction, stats.current.crawlingTurningSpeed, stats.current.crawlingAcceleration, stats.current.crawlingTopSpeed); 
+    
+    public virtual void WallDrag(Collider other)
+    {
+        if (stats.current.canWallDrag && velocity.y <= 0 &&
+            !holding && !other.TryGetComponent<Rigidbody>(out _))
+        {
+            if (CapsuleCast(transform.forward, 0.25f, out var hit,
+                    stats.current.wallDragLayers) && !DetectingLedge(0.25f, height, out _))
+            {
+                if (hit.collider.CompareTag(GameTag.Platform))
+                    transform.parent = hit.transform;
+
+                lastWallNormal = hit.normal;
+                states.Change<WallDragPlayerState>();
+            }
+        }
+    }
 
     public virtual void Respawn()
     {
@@ -523,6 +571,7 @@ public class Player : Entity<Player>
         controller.enabled = true;
         controller.Move(Vector3.zero);
         states.Change<IdlePlayerState>();
+        skinnedMeshRenderer.material = skinnedDefaultMaterial;
     }
     
 }

@@ -32,7 +32,10 @@ public class GlidingPlayerState : PlayerState
     
     public override void OnContact(Player player, Collider other)
     {
-        // player.PushRigidbody(other);
+        if (!player.isGrounded)
+        {
+            player.WallDrag(other);
+        }
     }
 
     private void HandleGlidingGravity(Player player)

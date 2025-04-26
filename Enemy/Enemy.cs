@@ -108,6 +108,7 @@ public class Enemy : Entity<Enemy>
     {
         if (!health.isEmpty && !health.recovering)
         {
+            Debug.Log("Apply!");
             health.Damage(amount);
             enemyEvents.OnDamage?.Invoke();
 
