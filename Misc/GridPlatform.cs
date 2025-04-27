@@ -1,23 +1,34 @@
-using System;
 using System.Collections;
 using UnityEngine;
 
 public class GridPlatform : MonoBehaviour
 {
     public Transform platform;
-    public float rotationDuration = .5f;
-    
+    public float rotationDuration = 0.5f; // 平滑旋转用时
+    public float flipInterval = 2.0f;      // 每隔多久翻转一次，用户可配置
+
     protected bool m_clockwise = true;
-    
+    private Coroutine m_flipCoroutine;
+
+    private void Start()
+    {
+        m_flipCoroutine = StartCoroutine(AutoFlipRoutine());
+    }
+
+    private IEnumerator AutoFlipRoutine()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(flipInterval);
+            Move();
+        }
+    }
+
     public virtual void Move()
     {
         StopAllCoroutines();
         StartCoroutine(MoveRoutine());
-    }
-    
-    private void Start()
-    {
-        FindObjectOfType<Player>().playerEvents.OnJump.AddListener(Move);
+        m_flipCoroutine = StartCoroutine(AutoFlipRoutine()); // 重新启动自动翻转
     }
 
     protected IEnumerator MoveRoutine()

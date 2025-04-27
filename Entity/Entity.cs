@@ -226,7 +226,6 @@ public abstract class Entity<T> : Entity where T : Entity<T>
                 UpdateGround(hit);
                 if (Vector3.Angle(hit.normal, Vector3.up) >= controller.slopeLimit)
                 {
-                    Debug.Log(Vector3.Angle(hit.normal, Vector3.up));
                     HandleSlopeLimit(hit);
                 }
             }

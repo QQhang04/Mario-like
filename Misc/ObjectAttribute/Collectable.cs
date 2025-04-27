@@ -5,6 +5,84 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class Collectable : MonoBehaviour
 {
+    private struct InitialState
+    {
+        // Inspector 可改的
+        public bool    collectOnContact;
+        public bool    usePhysics;
+        public Vector3 initialVelocity;
+        public float   gravity;
+        public bool    randomizeInitialDirection;
+        public bool    hidden;
+        public float   quickShowHeight, quickShowDuration, hideDuration;
+        public bool    hasLifeTime;
+        public float   lifeTimeDuration;
+        public float   collisionRadius, bounceness, maxBounceYVelocity, minForceToStopPhysics;
+        // Transform / Display / Collider
+        public Vector3 position;
+        public Quaternion rotation;
+        public bool     displayActive;
+        public bool     colliderEnabled;
+    }
+    private InitialState _init;
+    
+    private void RecordInitialState()
+    {
+        _init.collectOnContact          = collectOnContact;
+        _init.usePhysics               = usePhysics;
+        _init.initialVelocity          = initialVelocity;
+        _init.gravity                  = gravity;
+        _init.randomizeInitialDirection= randomizeInitialDirection;
+        _init.hidden                   = hidden;
+        _init.quickShowHeight          = quickShowHeight;
+        _init.quickShowDuration        = quickShowDuration;
+        _init.hideDuration             = hideDuration;
+        _init.hasLifeTime              = hasLifeTime;
+        _init.lifeTimeDuration         = lifeTimeDuration;
+        _init.collisionRadius          = collisionRadius;
+        _init.bounceness               = bounceness;
+        _init.maxBounceYVelocity       = maxBounceYVelocity;
+        _init.minForceToStopPhysics    = minForceToStopPhysics;
+
+        _init.position      = transform.position;
+        _init.rotation      = transform.rotation;
+        _init.displayActive = display.activeSelf;
+        _init.colliderEnabled = m_collider != null ? m_collider.enabled : true;
+    }
+
+    private void RestoreInitialState()
+    {
+        // 恢复 Inspector 字段
+        collectOnContact           = _init.collectOnContact;
+        usePhysics                 = _init.usePhysics;
+        initialVelocity            = _init.initialVelocity;
+        gravity                    = _init.gravity;
+        randomizeInitialDirection  = _init.randomizeInitialDirection;
+        hidden                     = _init.hidden;
+        quickShowHeight            = _init.quickShowHeight;
+        quickShowDuration          = _init.quickShowDuration;
+        hideDuration               = _init.hideDuration;
+        hasLifeTime                = _init.hasLifeTime;
+        lifeTimeDuration           = _init.lifeTimeDuration;
+        collisionRadius            = _init.collisionRadius;
+        bounceness                 = _init.bounceness;
+        maxBounceYVelocity         = _init.maxBounceYVelocity;
+        minForceToStopPhysics      = _init.minForceToStopPhysics;
+
+        // 恢复 Transform / Display / Collider
+        transform.position         = _init.position;
+        transform.rotation         = _init.rotation;
+        display.SetActive(_init.displayActive);
+        m_collider.enabled         = _init.colliderEnabled;
+
+        // 恢复内部状态
+        m_vanished         = false;
+        m_ghosting         = true;
+        m_elapsedGhostingTime = 0f;
+        m_elapsedLifeTime     = 0f;
+        m_velocity         = Vector3.zero;
+    }
+    
     [Header("General Settings")] 
     public GameObject display;
 
@@ -67,7 +145,6 @@ public class Collectable : MonoBehaviour
     
     protected virtual void InitializeTransform()
     {
-        transform.parent = null;
         transform.rotation = Quaternion.identity;
     }
     
@@ -114,6 +191,9 @@ public class Collectable : MonoBehaviour
             m_elapsedLifeTime = 0;
             display.SetActive(false);
             m_collider.enabled = false;
+            
+            // 回收
+            StartCoroutine(ReleaseToPool());
         }
     }
     
@@ -127,6 +207,13 @@ public class Collectable : MonoBehaviour
                 Vanish();
             }
         }
+    }
+    
+    private IEnumerator ReleaseToPool()
+    {
+        // 等待一帧或等粒子播放完
+        yield return new WaitForSeconds(particles ? particles.main.duration : 0f);
+        ObjectPool.Instance.PushObject(gameObject);
     }
 
     protected virtual void HandleMovement()
@@ -163,14 +250,13 @@ public class Collectable : MonoBehaviour
 
     public virtual void Collect(Player player)
     {
-        if (!m_ghosting && !m_vanished)
+        if ((!m_ghosting || hidden) && !m_vanished)
         {
             if (!hidden)
             {
-                Vanish();
-                
                 if (particles)
                     particles.Play();
+                Vanish();
             }
             else
             {
@@ -219,6 +305,16 @@ public class Collectable : MonoBehaviour
     {
         InitializeAudio();
         InitializeCollider();
+        InitializeTransform();
+        InitializeDisplay();
+        InitializeVelocity();
+        
+        RecordInitialState();
+    }
+
+    protected virtual void OnEnable()
+    {
+        RestoreInitialState();
         InitializeTransform();
         InitializeDisplay();
         InitializeVelocity();

@@ -9,7 +9,9 @@ public class ItemBox : MonoBehaviour, IEntityContact
 {
     protected BoxCollider m_collider;
     protected Vector3 m_initialScale;
-    public Collectable[] collectables;
+    public GameObject[] collectables;
+    // protected List<Collectable> collectables = new List<Collectable>();
+    
     protected bool m_enabled = true;
     public MeshRenderer itemBoxRenderer;
     public Material emptyItemBoxMaterial;
@@ -20,20 +22,30 @@ public class ItemBox : MonoBehaviour, IEntityContact
 
     protected int m_index;
     
-    protected virtual void InitializeCollectables()
-    {
-        foreach (var collectable in collectables)
-        {
-            if (!collectable.hidden)
-            {
-                collectable.gameObject.SetActive(false);
-            }
-            else
-            {
-                collectable.collectOnContact = false;
-            }
-        }
-    }
+    // protected virtual void InitializeCollectables()
+    // {
+    //     // 从池里创建实例
+    //     for (int i = 0; i < collectablePrefabs.Length; i++)
+    //     {
+    //         var prefab = collectablePrefabs[i];
+    //         var instance = ObjectPool.Instance.GetObject(prefab).GetComponent<Collectable>();
+    //         instance.hidden = true; 
+    //         instance.collectOnContact = false;
+    //         instance.transform.position = transform.position; // 放在箱子位置
+    //         collectables.Add(instance);
+    //     }
+    //     foreach (var collectable in collectables)
+    //     {
+    //         if (!collectable.hidden)
+    //         {
+    //             collectable.gameObject.SetActive(false);
+    //         }
+    //         else
+    //         {
+    //             collectable.collectOnContact = false;
+    //         }
+    //     }
+    // }
 
     public virtual void Collect(Player player)
     {
@@ -41,13 +53,18 @@ public class ItemBox : MonoBehaviour, IEntityContact
         {
             if (m_index < collectables.Length)
             {
-                if (collectables[m_index].hidden)
+                var prefab = collectables[m_index];
+                var instance = ObjectPool.Instance.GetObject(prefab).GetComponent<Collectable>();
+                
+                instance.transform.position = transform.position;
+                
+                if (instance.hidden)
                 {
-                    collectables[m_index].Collect(player);
+                    instance.Collect(player);
                 }
                 else
                 {
-                    collectables[m_index].gameObject.SetActive(true);
+                    instance.gameObject.SetActive(true);
                 }
 
                 m_index = Mathf.Clamp(m_index + 1, 0, collectables.Length);
@@ -75,7 +92,7 @@ public class ItemBox : MonoBehaviour, IEntityContact
     {
         m_collider = GetComponent<BoxCollider>();
         m_initialScale = transform.localScale;
-        InitializeCollectables();
+        // InitializeCollectables();
     }
 
     public void OnEntityContact(Entity entity)
